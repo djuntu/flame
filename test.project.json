@@ -2,8 +2,8 @@
 	"name": "flame-test",
 	"tree": {
 		"$className": "DataModel",
-		"ServerScriptService": {
-			"$className": "ServerScriptService",
+		"ReplicatedStorage": {
+			"$className": "ReplicatedStorage",
 			"Lib": {
 				"$path": "lib"
 			}
