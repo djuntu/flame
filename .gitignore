@@ -1,0 +1,13 @@
+# Project place file
+/flame.rbxlx
+
+# Roblox Studio lock files
+/*.rbxlx.lock
+/*.rbxl.lock
+
+sourcemap.json
+
+build
+roblox.toml
+.vscode
+/luacov.*.out

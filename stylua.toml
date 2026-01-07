@@ -1,0 +1,3 @@
+quote_style = "ForceSingle"
+space_after_function_names = "Definitions"
+collapse_simple_statement = "ConditionalOnly"

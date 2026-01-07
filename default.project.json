@@ -1,0 +1,6 @@
+{
+  "name": "flame",
+  "tree": {
+    "$path": "lib"
+  }
+}

@@ -1,0 +1,10 @@
+[package]
+name = "djuntu/flame"
+description = "Command-line for developers seeking more access."
+license = "MIT
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+include = ["lib", "default.project.json", "LICENSE"]
+
+[dependencies]
