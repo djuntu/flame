@@ -1,0 +1,1 @@
+local lib = require(game.ReplicatedStorage.Lib) {}
