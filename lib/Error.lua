@@ -134,7 +134,7 @@ function _Error:say (writeType: string?)
 	end
 
 	local evaluator = self:_getEvaluator()
-	self:_say(writeType, evaluator)
+	self:_say(speaker, evaluator)
 
 	return self
 end
@@ -152,7 +152,7 @@ function _Error:__tostring ()
 
 	-- Go through each key and extract the value or state as not provided.
 	for i, k in ipairs(satisfyArgs) do
-		table.insert(rawget(self, k) or 'No data provided.')
+		table.insert(argsStack, rawget(self, k) or 'No data provided.')
 	end
 
 	-- Format based on stack.
