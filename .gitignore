@@ -11,3 +11,4 @@ build
 roblox.toml
 .vscode
 /luacov.*.out
+default.project.json
