@@ -1,33 +1,27 @@
-local flame_builder
-local kick = flame_builder() {
-	name = 'kick',
-    alias = {},
+local Types = require(game.ReplicatedStorage.Lib.Types.FlameTypes)
+local CommandBuilder: Types.UserCommandBuilder = require(game.ReplicatedStorage.Lib.Objects.Command)
 
-    group = 'TestGroup'
+local Command: Types.CommandProps = {
+	Name = 'Kick',
+	Aliases = { 'Banish', 'Disconnect' },
+	Group = 'Managers',
+
+	Subcommands = {},
 }
 
-function kick:main (context)
-	local players = context.args.pick('players')
+function Command.New()
+	local State = {
+		TestState = 'True'
+	}
 
-	for _, player in players do
-		player:Kick()
-	end
-
-	return 'Done'
+	return State
 end
 
-function kick:onCondition (context)
-	local players = context.args.pick('players')
+CommandBuilder.Primary({
+	Hoist = Command,
+	Realm = 'Shared',
+})(function(context)
+	print(context)
+end)
 
-	local kick_players = context.args.filter(players, function (player)
-		return player.Name == 'Djuntu'
-	end)
-
-	for _, player in kick_players do
-		player:Kick()
-	end
-
-	return 'Done'
-end
-
-return kick
+return Command
