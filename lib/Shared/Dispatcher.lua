@@ -16,7 +16,13 @@ local UNKNOWN_COMMAND = '%s is not a valid command.'
 local UNKNOWN_COMMAND_ENTRY = '%s is not a valid command.'
 local INVALID_COMMAND_ARGUMENTS = 'Could not parse given input:\n%s'
 
+local Error = require(Flame.Error) {
+    Source = 'Shared'
+}
+Error:setSpeaker(Error.Speakers.CommandExecutionException)
+
 local Registry = require(script.Parent.Registry)
+local Command =  require(script.Parent.Parent.Objects.Command)
 local Dispatcher = {
 	Flame = nil,
 }
@@ -31,13 +37,37 @@ local Dispatcher = {
     @param rawArgs: string
     @returns boolean
 ]]
-function Dispatcher.Evaluate (self: FlameTypes.Dispatcher, executor: Player?, command: FlameTypes.Command, rawArgs: string, rawText: string): boolean
+function Dispatcher.Evaluate (
+	self: FlameTypes.Dispatcher,
+	executor: Player?,
+	command: FlameTypes.Command,
+	rawArgs: string,
+	rawText: string
+): boolean
+	local localBeforeExecMdwr, globalBeforeExecMdwr = self.Flame.Registry:GetMdwr(command, 'BeforeExecution'), self.Flame.Middleware.BeforeExecution
+    local mdwrEvaluator = localBeforeExecMdwr and localBeforeExecMdwr or globalBeforeExecMdwr
+
+    -- ATM this is done several times, combine this (maybe .Evaluate returns CommandContext|boolean=false?)
     local dispatchContext = {
-        Executor = executor,
-        IsRobot = not executor,
-        RawText = rawText,
-        RawArgs = rawArgs,
-    }
+		Executor = executor,
+		IsRobot = not executor,
+		RawText = rawText,
+		RawArgs = rawArgs,
+	}
+
+    local commandContext = Command.stackCommandContext(dispatchContext, Command.makeContext(command))
+    local errorRunningMdwr, satisfiesBeforeExecMdwr = not mdwrEvaluator and true, true or (pcall(mdwrEvaluator, commandContext))
+
+    if errorRunningMdwr then
+        Error:setContext(satisfiesBeforeExecMdwr):setTraceback(debug.traceback()):say()
+        return
+    end
+
+    -- check arguments
+    local satisfiesArguments = true
+
+    local userCanRunCommand = satisfiesBeforeExecMdwr and satisfiesBeforeExecMdwr
+    return userCanRunCommand
 end
 
 --[[
@@ -56,11 +86,9 @@ function Dispatcher.EvaluateAndRun (
 	executor: Player | nil,
 	rawText: string
 ): FlameTypes.CommandExecutionResponse
-    local commandName: string, commandEntryPoint: string, rawArgs: string = Util.makeParams(rawText)
+	local commandName: string, commandEntryPoint: string, rawArgs: string = Util.makeParams(rawText)
 
-    if not commandName then
-        return string.format(INVALID_COMMAND_ARGUMENTS, rawText)
-    end
+	if not commandName then return string.format(INVALID_COMMAND_ARGUMENTS, rawText) end
 
 	if runService:IsClient() then
 		self:Dispatch(commandName, commandEntryPoint, rawArgs)
@@ -73,7 +101,7 @@ function Dispatcher.EvaluateAndRun (
 	if not command then return string.format(UNKNOWN_COMMAND, commandName) end
 	if not command:extract(commandEntryPoint) then return string.format(UNKNOWN_COMMAND_ENTRY, commandEntryPoint) end
 
-    local canRun = self:Evaluate()
+	local canRun = self:Evaluate(executor, command, rawArgs, rawText)
 end
 
 --[[
@@ -103,8 +131,15 @@ function Dispatcher.Execute (
 	self: FlameTypes.Dispatcher,
 	executor: Player | nil,
 	commandEntryPoint: FlameTypes.CommandStyle | string,
-	rawArgs: string
+	rawArgs: string,
+	rawText: string
 ): FlameTypes.CommandExecutionResponse
+	local dispatchContext = {
+		Executor = executor,
+		IsRobot = not executor,
+		RawText = rawText,
+		RawArgs = rawArgs,
+	}
 end
 
 return function (self: FlameTypes._Flame): FlameTypes.Dispatcher

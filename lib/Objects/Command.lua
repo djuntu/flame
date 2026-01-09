@@ -47,8 +47,7 @@ function Command.new (command: FlameTypes.CommandProps): FlameTypes.Command
 	for commandName, subcommand in pairs(_commands) do
 		CommandHologram.Store[commandName] = Command.makeContextProvider(
 			CommandHologram,
-			subcommand,
-			CommandHologram.State :: typeof(CommandHologram.State)
+			subcommand
 		)
 	end
 
@@ -72,7 +71,7 @@ function Command.stackCommandContext (...)
 	return commandContext
 end
 
-function Command.makeContext <State>(commandHologram: FlameTypes.Command, state: State): FlameTypes.ExecutionContext
+function Command.makeContext <State>(commandHologram: FlameTypes.Command): FlameTypes.ExecutionContext
 	return {
 		State = commandHologram.State,
 		Name = commandHologram.Name,
@@ -88,11 +87,11 @@ function Command.makeContext <State>(commandHologram: FlameTypes.Command, state:
 	}
 end
 
-function Command.makeContextProvider (commandHologram: FlameTypes.Command, subcommand: FlameTypes.Subcommand, state)
+function Command.makeContextProvider (commandHologram: FlameTypes.Command, subcommand: FlameTypes.Subcommand)
 	return {
 		Executor = function (dispatchContext: FlameTypes.DispatchContext)
 			local _commandContext =
-				Command.stackCommandContext(dispatchContext, Command.makeContext(commandHologram, state))
+				Command.stackCommandContext(dispatchContext, Command.makeContext(commandHologram))
 
 			if subcommand.Realm ~= 'Shared' then
 				local isServerRealm = subcommand.Realm ~= 'Client'

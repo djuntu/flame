@@ -47,7 +47,12 @@ export type MdwrType = 'BeforeExecution' | 'AfterExecution'
 export type Scope = 'Command' | 'Hook'
 
 export type State = {}
-export type DispatchContext = {}
+export type DispatchContext = {
+    Executor: Player?,
+    IsRobot: boolean,
+    RawText: string,
+    RawArgs: string,
+}
 export type ExecutionContext = {
     Name: string,
     Group: string,
@@ -107,10 +112,10 @@ export type CommandExecutionResponse = string
 export type Dispatcher = {
     Flame: _Flame,
 
-    Evaluate: (self: Dispatcher, executor: Player?, command: Command, rawArgs: string) -> boolean,
+    Evaluate: (self: Dispatcher, executor: Player?, command: Command, rawArgs: string, rawText: string) -> boolean,
     EvaluateAndRun: (self: Dispatcher, executor: Player?, commandName: string, commandEntryPoint: CommandStyle | string, rawArgs: string) -> CommandExecutionResponse,
     Dispatch: (self: Dispatcher, rawText: string) -> CommandExecutionResponse,
-    Execute: (self: Dispatcher, executor: Player?, commandEntryPoint: CommandStyle | string, rawArgs: string) -> CommandExecutionResponse,
+    Execute: (self: Dispatcher, executor: Player?, commandEntryPoint: CommandStyle | string, rawArgs: string, rawText: string) -> CommandExecutionResponse,
 }
 
 export type _Flame = {
