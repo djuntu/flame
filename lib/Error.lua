@@ -31,7 +31,7 @@ local ERROR_GHOST =
     @param ErrorObjectCreationConfig
     @returns ErrorInterface
 ]]
-local _Error = {}
+local _Error = { mode = 'kv' }
 _Error.__index = _Error
 
 --[[
@@ -63,7 +63,7 @@ local function makeEnum (enumName: string, enumItems: { string })
 		__index = function (_, k)
 			error(('%s is not apart of Enum %s'):format(k, enumName))
 		end,
-		__newIndex = function (_, k, v)
+		__newindex = function (_, k, v)
 			error(('Attempted to create [%s]=%s in Enum %s when creating is disallowed.'):format(k, v, enumName))
 		end,
 	})
@@ -106,10 +106,12 @@ function _Error.new (errorConfig: ErrorTypes.ErrorObjectCreationConfig)
 	do
 		config = errorConfig
 		config.Speakers = makeEnum('ErrorSpeaker', {
-            'InitializationException',
+			'InitializationException',
 			'CommandException',
 			'PermissionMismatchException',
 		})
+
+		config.className = 'error'
 	end
 
 	local self = config
@@ -137,6 +139,21 @@ function _Error:say (writeType: string?)
 	self:_say(speaker, evaluator)
 
 	return self
+end
+
+--[[
+    Wraps the `say` function in an assertion check (condition provided
+	is false or nil).
+
+    @within ErrorPrototype
+	@param condition: Condition?
+    @param writeType?: string
+    @returns ErrorObject
+    @optional
+]]
+function _Error:assertsay <C>(condition: C?, writeType: string?)
+	if condition then return self end
+	return self:say(writeType)
 end
 
 --[[
@@ -315,6 +332,8 @@ function _Error.implements (baseError: ErrorTypes.ErrorObject)
 	)
 
 	rawset(baseError, 'Speakers', nil)
+	getmetatable(baseError).__newindex = nil
+
 	return _Error.new(baseError)
 end
 
@@ -322,7 +341,7 @@ end
     Wraps the Error instantiation to allow for derivation of other Error
     Objects as the validation is outside the primary scope.
 ]]
-return function (errorConfig: ErrorTypes.ErrorObjectCreationConfig): ErrorTypes.ErrorObject
+return function (errorConfig: ErrorTypes.ErrorObjectCreationConfig): (ErrorTypes.ErrorObject, ErrorTypes.ErrorObject)
 	assert(errorConfig, 'Expected type ErrorObjectCreationConfig got nil.')
 	assert(typeof(errorConfig) == 'table', 'Expected type table for base literal got non table when instantiating.')
 
@@ -332,5 +351,5 @@ return function (errorConfig: ErrorTypes.ErrorObjectCreationConfig): ErrorTypes.
 		string.format('%s is not a valid Error Source!', errorConfig.Source)
 	)
 
-	return _Error.new(errorConfig)
+	return _Error.new(errorConfig), _Error
 end
