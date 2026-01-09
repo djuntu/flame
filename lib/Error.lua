@@ -2,7 +2,7 @@ local SoundService = game:GetService('SoundService')
 local lib = script.Parent
 
 local ErrorTypes = require(lib.Types.ErrorTypes)
-local VALID_ERROR_SOURCES = { 'Server', 'Client' }
+local VALID_ERROR_SOURCES = { 'Server', 'Client', 'Shared' }
 local VALID_WRITE_TYPES = {
 	error = error,
 	warn = warn,
@@ -109,6 +109,8 @@ function _Error.new (errorConfig: ErrorTypes.ErrorObjectCreationConfig)
 			'InitializationException',
 			'CommandException',
 			'PermissionMismatchException',
+			'CommandExecutionException',
+			'MiddlewareException'
 		})
 
 		config.className = 'error'
@@ -331,7 +333,6 @@ function _Error.implements (baseError: ErrorTypes.ErrorObject)
 		'Attempted to implement a new error with invalid object. Expected ErrorObject got other.'
 	)
 
-	rawset(baseError, 'Speakers', nil)
 	getmetatable(baseError).__newindex = nil
 
 	return _Error.new(baseError)
