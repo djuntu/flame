@@ -39,7 +39,7 @@ local BuiltInCommands = Flame.BuiltInCommands
 ]]
 return function <C>(userBuilderOptions: BuildTypes.FlameBuildConfig?): FlameTypes.FlameMain<C>
 	local _Flame: BuildTypes.Builder<C> =
-		Build(userBuilderOptions and typeof(userBuilderOptions) and next(userBuilderOptions) or {
+		Build(userBuilderOptions and typeof(userBuilderOptions) and next(userBuilderOptions) and userBuilderOptions or {
 			NetworkRoot = nil,
 			Util = Util,
 		})

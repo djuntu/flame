@@ -45,10 +45,7 @@ function Command.new (command: FlameTypes.CommandProps): FlameTypes.Command
 
 	-- Instantiate each command to mesh context on execution.
 	for commandName, subcommand in pairs(_commands) do
-		CommandHologram.Store[commandName] = Command.makeContextProvider(
-			CommandHologram,
-			subcommand
-		)
+		CommandHologram.Store[commandName] = Command.makeContextProvider(subcommand)
 	end
 
 	CommandHologram.__index = CommandHologram.Store
@@ -87,12 +84,9 @@ function Command.makeContext <State>(commandHologram: FlameTypes.Command): Flame
 	}
 end
 
-function Command.makeContextProvider (commandHologram: FlameTypes.Command, subcommand: FlameTypes.Subcommand)
+function Command.makeContextProvider (subcommand: FlameTypes.Subcommand)
 	return {
-		Executor = function (dispatchContext: FlameTypes.DispatchContext)
-			local _commandContext =
-				Command.stackCommandContext(dispatchContext, Command.makeContext(commandHologram))
-
+		Executor = function (commandContext: FlameTypes.CommandContext)
 			if subcommand.Realm ~= 'Shared' then
 				local isServerRealm = subcommand.Realm ~= 'Client'
 
@@ -105,9 +99,9 @@ function Command.makeContextProvider (commandHologram: FlameTypes.Command, subco
 				end
 			end
 
-			subcommand.Exec(_commandContext)
+			return subcommand.Exec(commandContext)
 		end,
-        Realm = subcommand.Realm,
+		Realm = subcommand.Realm,
 	}
 end
 

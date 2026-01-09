@@ -26,7 +26,7 @@ end
 ]]
 function Util.parseParams(rawText: string): (string, FlameTypes.CommandStyle | string, string)
     --do this
-    return string.split(rawText, ' ')
+    return unpack(string.split(rawText, ' '))
 end
 
 return Util

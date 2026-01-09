@@ -1,15 +1,18 @@
 export type FlameBuildConfig = {
     --NetworkRoot: Folder?,
     EnableServerClientComms: boolean?,
+    DoNotAnnounceRunner: boolean?,
 }
 
 export type ServerBuildProps = {
     ContextCommunicator: RemoteEvent?,
     DispatcherReceiver: RemoteFunction,
+    DoNotAnnounceRunner: boolean?,
 }
 export type ClientBuildProps = {
     ContextCommunicator: RemoteEvent?,
     DispatcherReceiver: RemoteFunction,
+    DoNotAnnounceRunner: boolean?,
 }
 
 export type Builder<P> = {

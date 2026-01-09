@@ -50,6 +50,7 @@ function BUILD:__call (buildConfig: BuildTypes.FlameBuildConfig)
 			return {
 				ContextCommunicator = netRoot:FindFirstChild('ContexComm'),
 				DispatcherReceiver = netRoot:FindFirstChild('Dispatcher'),
+                DoNotAnnounceRunner = buildConfig.DoNotAnnounceRunner,
 			}
 		end)
 

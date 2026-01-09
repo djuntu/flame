@@ -62,7 +62,7 @@ export type ExecutionContext = {
     GetState: (self: ExecutionContext) -> State,
 }
 export type CommandContext = DispatchContext & ExecutionContext
-export type CommandStore = {[string]: CommandEvaluator}
+export type CommandStore = {[string]: Executable}
 export type Realm = 'Server' | 'Client' | 'Shared'
 export type CommandStyle = 'Primary' | 'Secondary'
 export type CommandEvaluator = (CommandContext) -> any?
@@ -76,7 +76,10 @@ export type UserCommandBuilder = {
     Primary: CommandBuilder,
     Secondary: CommandBuilder,
 }
-
+export type Executable = {
+    Executor: CommandEvaluator,
+    Realm: Realm,
+}
 export type Command = {
     Name: string,
     Aliases: {string}?,
@@ -88,7 +91,7 @@ export type Command = {
     State: State,
     Store: CommandStore,
 
-    extract: (self: Command, subcommand: string) -> Subcommand?
+    extract: (self: Command, subcommand: string) -> Executable?
 }
 export type Subcommand = {
     Realm: Realm,
@@ -108,14 +111,16 @@ export type CommandProps = {
 }
 
 export type Util = {}
-export type CommandExecutionResponse = string
+export type CommandExecutionResponse = string?
 export type Dispatcher = {
     Flame: _Flame,
 
-    Evaluate: (self: Dispatcher, executor: Player?, command: Command, rawArgs: string, rawText: string) -> boolean,
-    EvaluateAndRun: (self: Dispatcher, executor: Player?, commandName: string, commandEntryPoint: CommandStyle | string, rawArgs: string) -> CommandExecutionResponse,
+    Evaluate: (self: Dispatcher, executor: Player?, command: Command, rawArgs: string, rawText: string) -> (boolean, CommandContext),
+    Provide: (self: Dispatcher, executor: Player?, command: Command, rawArgs: string, rawText: string) -> CommandContext,
+    EvaluateAndRun: (self: Dispatcher, executor: Player?, rawText: string) -> CommandExecutionResponse,
     Dispatch: (self: Dispatcher, rawText: string) -> CommandExecutionResponse,
-    Execute: (self: Dispatcher, executor: Player?, commandEntryPoint: CommandStyle | string, rawArgs: string, rawText: string) -> CommandExecutionResponse,
+    Execute: (self: Dispatcher, command: Command, commandEntryPoint: CommandStyle | string, commandContext: CommandContext) -> CommandExecutionResponse,
+    EvaluateAndRunAsParsed: (self: Dispatcher, commandName: string, commandEntryPoint: CommandStyle | string, rawArgs: string, rawText: string) -> CommandExecutionResponse,
 }
 
 export type _Flame = {

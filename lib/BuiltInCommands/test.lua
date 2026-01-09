@@ -26,7 +26,7 @@ end)
 
 CommandBuilder.Secondary {
     Hoist = Command,
-    Realm = 'Shared',
+    Realm = 'Client',
     Name = 'subcommand'
 } (function(context)
     print(context)

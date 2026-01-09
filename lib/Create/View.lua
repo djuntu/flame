@@ -18,6 +18,8 @@ local function addMiddleware (self: FlameTypes._Flame, module: ModuleScript)
 	for mdwrType, callback in pairs(require(module)) do
 		self.Middleware[mdwrType] = callback
 	end
+
+    return self
 end
 
 --[[

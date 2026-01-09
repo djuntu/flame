@@ -346,7 +346,7 @@ function Registry.GetMdwr (
 	command: FlameTypes.Command,
 	middleware: FlameTypes.MdwrType
 ): FlameTypes.Middleware?
-    return command.Middleware[middleware]
+    return command.Middleware and command.Middleware[middleware]
 end
 
 --[[
