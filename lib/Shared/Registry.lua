@@ -204,7 +204,7 @@ end
 ]]
 function Registry.RegisterCommand (self: FlameTypes.Registry, command: FlameTypes.Command)
 	local object = Command.new(command)
-    self.Commands[command.Name] = object
+	self.Commands[command.Name] = object
 end
 
 --[[
@@ -307,13 +307,17 @@ function Registry.MarkCommandExecutionBuffer (self: FlameTypes.Registry, executi
     @return getObjective?
 ]]
 function Registry.Get (self: FlameTypes.Registry, target: string, scope: string)
-    local getEvaluator = 'Get' .. scope
+	assert(scope, 'Expected scope got nil.')
+	assert(target, 'Expected target got nil.')
+	assert(
+		typeof(scope) == 'string' and typeof(target) == 'string',
+		'Expected strings to be provided got one or more of other.'
+	)
 
-    if not self[getEvaluator] then
-        return nil
-    end
+	local getEvaluator = 'Get' .. scope
 
-    return self[getEvaluator](self, target)
+	if not self[getEvaluator] then return nil end
+	return self[getEvaluator](self, target)
 end
 
 --[[
@@ -328,7 +332,20 @@ end
     @returns Command?
 ]]
 function Registry.GetCommand (self: FlameTypes.Registry, commandName: string): FlameTypes.Command?
-    return self.Commands[commandName]
+	commandName = string.lower(commandName)
+	local existsByExactReference = self.Commands[commandName]
+	if existsByExactReference then return existsByExactReference end
+
+	for _, command in pairs(self.Commands) do
+		if
+			command.Aliases
+			and typeof(command.Aliases) == 'table'
+			and next(command.Aliases)
+			and table.find(command.Aliases, commandName)
+		then
+			return command
+		end
+	end
 end
 
 --[[
@@ -346,7 +363,7 @@ function Registry.GetMdwr (
 	command: FlameTypes.Command,
 	middleware: FlameTypes.MdwrType
 ): FlameTypes.Middleware?
-    return command.Middleware and command.Middleware[middleware]
+	return command.Middleware and command.Middleware[middleware]
 end
 
 --[[

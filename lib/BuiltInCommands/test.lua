@@ -6,7 +6,6 @@ local Command: Types.CommandProps = {
 	Name = 'test',
 	Aliases = {},
 	Group = 'Managers',
-	Subcommands = {},
 }
 
 function Command.New ()

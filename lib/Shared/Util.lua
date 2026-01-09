@@ -29,4 +29,13 @@ function Util.parseParams(rawText: string): (string, FlameTypes.CommandStyle | s
     return unpack(string.split(rawText, ' '))
 end
 
+--[[
+    Maps through each item in a list and modifies based on callback.
+]]
+function Util.map(list: FlameTypes.List<any>, callback: (any) -> any)
+    for i = 1, #list do
+        list[i] = callback(i)
+    end
+end
+
 return Util

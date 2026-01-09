@@ -7,6 +7,7 @@ local Flame = script.Parent.Parent
 local Types = Flame.Types
 local FlameTypes = require(Types.FlameTypes)
 local ErrorTypes = require(Types.ErrorTypes)
+local Util = require(Flame.Shared.Util)
 local ServerReporter, BaseError = require(Flame.Error) {
 	Source = 'Server',
 }
@@ -29,9 +30,10 @@ Command.prototype.__index = Command
 Command.prototype = setmetatable({}, Command.prototype)
 
 function Command.new (command: FlameTypes.CommandProps): FlameTypes.Command
+    local aliases = Command.formatAliases(command.Aliases)
 	local CommandHologram = {
-		Name = command.Name,
-		Aliases = command.Aliases or {},
+		Name = Command.formatName(command.Name),
+		Aliases = aliases,
 		Group = command.Group,
 		Store = {},
 		State = {},
@@ -112,6 +114,9 @@ function Command.makeCommandExecutor (
 )
 	local hoist, realm = commandOptions.Hoist, commandOptions.Realm
 	return function (Executor: (context: FlameTypes.CommandContext) -> ())
+        if not rawget(hoist, 'Subcommands') then
+            hoist.Subcommands = {}
+        end
 		_exception
 			:setContext(('Invalid Executor expected type function got %s in %s'):format(typeof(Executor), hoist.Name))
 			:recommend('You must pass a function as the only argument of your command builder.')
@@ -132,6 +137,22 @@ function Command.makeCommandExecutor (
 			Exec = Executor,
 		}
 	end
+end
+
+function Command.formatName(name: string): string
+    return name:lower():gsub('%s+', '')
+end
+
+function Command.formatAliases(aliases: {string}?)
+    if aliases and typeof(aliases) == 'table' and next(aliases) then
+        Util.map(aliases, function(alias: string)
+            if typeof(alias) ~= 'string' then
+                return nil
+            end
+
+            return Command.formatName(alias)
+        end)
+    end
 end
 
 function Command.prototype.Primary (commandOptions: FlameTypes.CommandOptions)
