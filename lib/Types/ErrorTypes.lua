@@ -8,6 +8,7 @@ export type ErrorObject = {
     new: (ErrorObjectCreationConfig) -> ErrorObject,
 
     say: (ErrorObject, string) -> ErrorObject,
+    assertsay: (ErrorObject, boolean?, string) -> ErrorObject,
     setSpeaker: (ErrorObject, string) -> ErrorObject,
     setContext: (ErrorObject, string) -> ErrorObject,
     setTraceback: (ErrorObject, string) -> ErrorObject,
@@ -19,6 +20,8 @@ export type ErrorObject = {
         InitializationException: string,
         CommandException: string,
         PermissionMismatchException: string,
+        CommandExecutionException: string,
+        MiddlewareException: string,
     },
 
     Speaker: string?,
