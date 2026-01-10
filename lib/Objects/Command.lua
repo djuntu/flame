@@ -60,6 +60,14 @@ function Command.new (command: FlameTypes.CommandProps): FlameTypes.Command
 	return setmetatable(CommandHologram, CommandHologram)
 end
 
+--[[
+    @within Command
+    @function stackCommandContext
+	Unionizes the given contexts to create a CommandContext.
+
+	@private
+	@notprototypical
+]]
 function Command.stackCommandContext (...)
 	local commandContext: FlameTypes.CommandContext = {}
 	for _, context in pairs { ... } do
@@ -71,6 +79,15 @@ function Command.stackCommandContext (...)
 	return commandContext
 end
 
+--[[
+    @within Command
+    @function makeContext
+	Creates an ExecutionContext from a Command, which is the native
+	Context of the Command itself.
+
+	@private
+	@notprototypical
+]]
 function Command.makeContext <State>(commandHologram: FlameTypes.Command): FlameTypes.ExecutionContext
 	return {
 		State = commandHologram.State,
@@ -87,6 +104,15 @@ function Command.makeContext <State>(commandHologram: FlameTypes.Command): Flame
 	}
 end
 
+--[[
+    @within Command
+    @function makeContextArgument
+	Unionizes the ArgumentContext to the CommandContext to derive from the CommandContext to
+	include ArgumentContext (still appropriates to CommandContext).
+
+	@private
+	@notprototypical
+]]
 function Command.makeContextArgument(commandContext: FlameTypes.CommandContext, argumentContext: FlameTypes.KeyList<string, FlameTypes.ArgumentContext>): FlameTypes.CommandContext
 	commandContext.Arguments = argumentContext
 	commandContext.GetArgument = function(self: FlameTypes.CommandContext, name: string)
@@ -97,6 +123,15 @@ function Command.makeContextArgument(commandContext: FlameTypes.CommandContext, 
 	end
 end
 
+--[[
+    @within Command
+    @function makeContextProvider
+	Creates a Provider for the Subcommand itself, this is what is called
+	and utilized when being executed itself.
+
+	@private
+	@notprototypical
+]]
 function Command.makeContextProvider (subcommand: FlameTypes.Subcommand)
 	return {
 		Executor = function (commandContext: FlameTypes.CommandContext)
@@ -119,11 +154,20 @@ function Command.makeContextProvider (subcommand: FlameTypes.Subcommand)
 	}
 end
 
+--[[
+    @within Command
+    @function makeCommandExecutor
+	Structures a Command based on its hoist and realm to create a provisional
+	Executable (Subcommand)
+
+	@private
+	@notprototypical
+]]
 function Command.makeCommandExecutor (
 	commandOptions: FlameTypes.CommandOptions,
 	_exception: ErrorTypes.ErrorObject,
 	commandStyle: FlameTypes.CommandStyle
-)
+): FlameTypes.Subcommand
 	local hoist, realm = commandOptions.Hoist, commandOptions.Realm
 	local arguments = commandOptions.Arguments or {}
 	return function (Executor: (context: FlameTypes.CommandContext) -> ())
@@ -153,10 +197,27 @@ function Command.makeCommandExecutor (
 	end
 end
 
+--[[
+    @within Command
+    @function formatName
+	Strips and lowers string.
+
+	@private
+	@notprototypical
+]]
 function Command.formatName(name: string): string
     return name:lower():gsub('%s+', '')
 end
 
+--[[
+    @within Command
+    @function formatAliases
+	Formats all given Aliases to comply with the same logic as
+	the name.
+
+	@private
+	@notprototypical
+]]
 function Command.formatAliases(aliases: {string}?)
     if aliases and typeof(aliases) == 'table' and next(aliases) then
         Util.map(aliases, function(alias: string)
@@ -169,7 +230,32 @@ function Command.formatAliases(aliases: {string}?)
     end
 end
 
-function Command.prototype.Primary (commandOptions: FlameTypes.CommandOptions)
+--[[
+    @within Command
+    @function Primary
+	Creates a Primary Command based on the given options.
+
+	::: @note :::
+	A primary command is that which is called by default/can be called without
+	any further routing.
+
+	@pseudocode
+	```lua
+	local Command = ...
+
+	run Command, +args...
+	```
+
+	@cli
+	```lua
+	$ command 'Arguments', ...
+	```
+
+	@public
+	@param commandOptions: CommandOptions
+	@returns Subcommand
+]]
+function Command.prototype.Primary (commandOptions: FlameTypes.CommandOptions): FlameTypes.Subcommand
 	local _exception = BaseError.implements(runService:IsClient() and ClientReporter or ServerReporter)
 	_exception
 		:setContext('Expected Hoist, Realm properties when passing command options.')
@@ -181,7 +267,32 @@ function Command.prototype.Primary (commandOptions: FlameTypes.CommandOptions)
 	return Command.makeCommandExecutor(commandOptions, _exception, 'Primary')
 end
 
-function Command.prototype.Secondary (commandOptions: FlameTypes.CommandOptions)
+--[[
+    @within Command
+    @function Secondary
+	Creates a Secondary Command based on the given options.
+
+	::: @note :::
+	A secondary command is one which is not executed by default/requires
+	a routing input when calling.
+
+	@pseudocode
+	```lua
+	local Command = ...
+
+	run Command, EntryPoint, +args...
+	```
+
+	@cli
+	```lua
+	$ command/Route 'Arguments', ...
+	```
+
+	@public
+	@param commandOptions: CommandOptions
+	@returns Subcommand
+]]
+function Command.prototype.Secondary (commandOptions: FlameTypes.CommandOptions): FlameTypes.Subcommand
 	local _exception = BaseError.implements(runService:IsClient() and ClientReporter or ServerReporter)
 	_exception
 		:setContext('Expected Hoist, Realm, Name properties when passing command options.')
