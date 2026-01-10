@@ -6,11 +6,29 @@ local FlameTypes = require(Types.FlameTypes)
 local Arguments = require(lib.Objects.Arguments)
 local Middleware = require(lib.Objects.Middleware)
 
+--[[
+	@within Flame
+	@method addCommand
+	Registers a new command to Flame.
+
+	@public
+	@param module: ModuleScript
+	@returns Flame
+]]
 local function addCommand (self: FlameTypes._Flame, module: ModuleScript)
 	self.Registry:Register(module)
 	return self
 end
 
+--[[
+	@within Flame
+	@method addType
+	Registers a new type to Flame.
+
+	@public
+	@param module: ModuleScript
+	@returns Flame
+]]
 local function addType (self: FlameTypes._Flame, module: ModuleScript)
 	if not module or (module and typeof(module) ~= 'Instance') or not module:IsA('ModuleScript') then
 		error('addType expects a ModuleScript!')
@@ -24,6 +42,15 @@ local function addType (self: FlameTypes._Flame, module: ModuleScript)
 	return self
 end
 
+--[[
+	@within Flame
+	@method addMiddleware
+	Registers Middleware to the global Flame scope.
+
+	@public
+	@param module: ModuleScript
+	@returns Flame
+]]
 local function addMiddleware (self: FlameTypes._Flame, module: ModuleScript)
 	if not module or (module and typeof(module) ~= 'Instance') or not module:IsA('ModuleScript') then
 		error('addMiddleware expects a ModuleScript!')
