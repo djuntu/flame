@@ -57,7 +57,15 @@ local Arguments: FlameTypes.Arguments = {
     @public
 ]]
 
--- checks if the argument exists
+--[[
+    @within Arguments
+    @function StructHasArgument
+	Checks whether the given ArgumentStruct has a given argument.
+
+	@param struct: ArgumentStruct
+	@param name: string
+	@returns number: Index | boolean=false
+]]
 function Arguments.StructHasArgument(struct: FlameTypes.ArgumentStruct, name: string)
     for index, argument in pairs(struct) do
         if argument.Name == name then
@@ -68,7 +76,14 @@ function Arguments.StructHasArgument(struct: FlameTypes.ArgumentStruct, name: st
     return false
 end
 
--- creates the initial argument structure which is {evaluators}
+--[[
+    @within Arguments
+    @function Struct
+	Creates an ArgumentStruct
+
+	@param givenArguments: GivenArguments <- This comes from the Command
+	@returns ArgumentStruct
+]]
 function Arguments.Struct (givenArguments: FlameTypes.GivenArguments): FlameTypes.ArgumentStruct
 	local required, optional = {}, {}
 	for i, argument in ipairs(givenArguments) do
@@ -131,14 +146,35 @@ function Arguments.Struct (givenArguments: FlameTypes.GivenArguments): FlameType
 	return required
 end
 
--- returns the given type for unionisation
-function Arguments.Inherit (name: string)
+--[[
+    @within Arguments
+    @function Inherit
+	Used to get a Type from the Registry.
+
+	::: @cyclic :::
+	This should be used within your Type functions (Parse, Transform, Validate)
+	as inheriting types before they exist may be a risk if not.
+	::: @note :::
+
+	@param name: string
+	@returns FlameTypes.DataType | FlameTypes.EnumType
+]]
+function Arguments.Inherit (name: string): FlameTypes.DataType | FlameTypes.EnumType
 	local type = Arguments.Types[name]
 	assert(type, string.format('%s exists as no type.\n%s', name, debug.traceback()))
 	return type
 end
 
--- evaluates the argument inputted and provides a boolean (isComply) and a hint: List<Hint>
+--[[
+    @within Arguments
+    @function Evaluator
+	Evaluates the validity of given type against the provided input and provides
+	a consensus and a hint list.
+
+	@param stringType: string
+	@param argumentInput: string
+	@returns (consensus: boolean, HintList: FlameTypes.Hint)
+]]
 function Arguments.Evaluator (stringType: string, argumentInput: string?): (boolean, FlameTypes.Hint)
 	local registeredType = Arguments.Types[stringType]
 
@@ -172,16 +208,42 @@ function Arguments.Evaluator (stringType: string, argumentInput: string?): (bool
 	return isValid, isDataType and (type.Search and type.Search(argumentInput) or {}) or type
 end
 
-function Arguments.Make(argumentName: string, argumentEvaluator: FlameTypes.DataType | FlameTypes.EnumType)
+--[[
+    @within Arguments
+    @function Make
+	Creates a new Type.
+
+	@param argumentName: string
+	@param evaluator: FlameTypes.DataType | FlameTypes.EnumType
+	@returns ArgumentType
+]]
+function Arguments.Make(argumentName: string, argumentEvaluator: FlameTypes.DataType | FlameTypes.EnumType): FlameTypes.ArgumentType
 	return function ()
 		return argumentName, argumentEvaluator
 	end
 end
 
+--[[
+    @within Arguments
+    @function Make
+	Creates a new EnumType.
+
+	@param name: string
+	@param list: List<string>
+	@returns EnumType
+]]
 function Arguments.MakeEnumType(name: string, list: FlameTypes.List<string>): FlameTypes.EnumType
 	return makeEnum(name, list)
 end
 
+--[[
+    @within Arguments
+    @function Make
+	Creates a new DataType.
+
+	@param holotype: DataType
+	@returns DataType
+]]
 function Arguments.MakeDataType(holotype: FlameTypes.DataType): FlameTypes.DataType
 	-- Validate properties
 	assert(typeof(holotype) == 'table', 'Expected table for MakeDataType entry.')
@@ -203,7 +265,16 @@ function Arguments.MakeDataType(holotype: FlameTypes.DataType): FlameTypes.DataT
 	}
 end
 
--- handles the struct evaluator for a single argument (ran when the user is typing)
+--[[
+    @within Arguments
+    @function Make
+	Single Evaluator for a given argument, used by the client as an entry point.
+
+	@param struct: ArgumentStruct
+	@param argumentName: string
+	@userInput: string?
+	@returns (boolean, Hint)
+]]
 function Arguments.Seems (
 	struct: FlameTypes.ArgumentStruct,
 	argumentName: string,
@@ -214,11 +285,20 @@ function Arguments.Seems (
 	return false
 end
 
--- extracts all the provided arguments and provides a consensus (all evaluators are true) and an Dict<string, ArgumentContext>
+--[[
+    @within Arguments
+    @function Dilute
+	Evaluates the given arguments and makes a decision as well as creating
+	ArgumentContext to be used by the Command through its CommandContext.
+
+	@param struct: ArgumentStruct
+	@userInput: string?
+	@returns (boolean, KeyList<string, ArgumentContext>)
+]]
 function Arguments.Dilute (
 	struct: FlameTypes.ArgumentStruct,
 	userInput: string?
-)
+): (boolean, FlameTypes.KeyList<string, FlameTypes.ArgumentContext>)
     local argumentsSeemOK = true
 	local contextMesh = {}
 
@@ -235,7 +315,15 @@ function Arguments.Dilute (
 	return argumentsSeemOK, contextMesh
 end
 
--- creates a context for a given argument (argument_name + user_input)
+--[[
+    @within Arguments
+    @function Context
+	Creates a Context for an argument.
+
+	@param name: string
+	@param userInput: string?
+	@returns ArgumentContext
+]]
 function Arguments.Context (name: string, userInput: string?): FlameTypes.ArgumentContext
 	return {
 		Name = name,
@@ -243,15 +331,36 @@ function Arguments.Context (name: string, userInput: string?): FlameTypes.Argume
 	}
 end
 
--- registers all the types
-function Arguments.Register (type)
+--[[
+    @within Arguments
+    @function Register
+	Registers a type to the Argument Registry.
+
+	@param type: ArgumentType
+	@returns void
+]]
+function Arguments.Register (type: FlameTypes.ArgumentType): ()
 	local typeName, t = type()
 
 	if Arguments.Types[typeName] then error(('%s already exists as a type.'):format(typeName)) end
 	Arguments.Types[typeName] = t
 end
 
--- checks what type of type the given type is
+--[[
+    @within Arguments
+    @function typeOf
+	Evaluates the type of the given input (DataType or EnumType). Used
+	for making decisions when parsing.
+
+	::: @notfriendly :::
+	This does not have inherent error checking as it is only
+	meant to be used by the Arguments object itself.
+	::: @note :::
+
+	@protected
+	@param type: DataType | EnumType
+	@returns string
+]]
 function Arguments.typeOf (t: FlameTypes.DataType | FlameTypes.EnumType)
 	if t['Parse'] then return 'DataType' end
 
