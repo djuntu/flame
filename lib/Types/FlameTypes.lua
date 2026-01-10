@@ -150,7 +150,7 @@ export type Arguments = {
     Struct: (givenArguments: GivenArguments) -> ArgumentContext,
     Evaluator: (stringType: string, argumentInput: string?) -> (boolean, Hint),
     Seems: (struct: ArgumentStruct, argumentName: string, userInput: string?) -> boolean,
-    Dilute: (struct: ArgumentStruct, userInput: string?) -> (boolean, List<ArgumentContext>),
+    Dilute: (struct: ArgumentStruct, userInput: string?) -> (boolean, KeyList<string, ArgumentContext>),
     Context: (name: string, userInput: string?) -> ArgumentContext,
     Register: () -> (),
     Inherit: (name: string) -> ArgumentType,
