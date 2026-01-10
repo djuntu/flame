@@ -15,6 +15,7 @@ local FlameTypes = require(Types.FlameTypes)
 local View = require(Flame.Create.View)
 
 local BuiltInCommands = Flame.BuiltInCommands
+local BuiltInTypes = Flame.BuiltInTypes
 
 --[[
     Creates the builder for initializing Flame.
@@ -57,6 +58,11 @@ return function <C>(userBuilderOptions: BuildTypes.FlameBuildConfig?): FlameType
 		local UserView: C = View(_Flame)
 
 		local Main: FlameTypes.FlameMain<C> = _Flame
+		for _, type in BuiltInTypes:GetChildren() do
+			if not type:IsA('ModuleScript') then continue end
+
+			Main:addType(type)
+		end
 		for _, command in BuiltInCommands:GetChildren() do
 			if not command:IsA('ModuleScript') then continue end
 

@@ -22,6 +22,7 @@ export type ErrorObject = {
         PermissionMismatchException: string,
         CommandExecutionException: string,
         MiddlewareException: string,
+        ArgumentParserException: string,
     },
 
     Speaker: string?,

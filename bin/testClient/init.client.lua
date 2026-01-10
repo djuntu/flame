@@ -4,4 +4,4 @@ local buildTypes  = require(types.BuildTypes)
 
 local lib: flameTypes.FlameMain<buildTypes.ClientBuildProps> = require(game.ReplicatedStorage.Lib) {}
 
-print(lib.Dispatcher:EvaluateAndRun(nil, 'test subcommand'))
+--print(lib.Dispatcher:EvaluateAndRun(nil, 'test subcommand'))

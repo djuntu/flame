@@ -110,7 +110,8 @@ function _Error.new (errorConfig: ErrorTypes.ErrorObjectCreationConfig)
 			'CommandException',
 			'PermissionMismatchException',
 			'CommandExecutionException',
-			'MiddlewareException'
+			'MiddlewareException',
+			'ArgumentParserException',
 		})
 
 		config.className = 'error'

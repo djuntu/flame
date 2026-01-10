@@ -7,6 +7,7 @@ local Flame = script.Parent.Parent
 local Types = Flame.Types
 local FlameTypes = require(Types.FlameTypes)
 local ErrorTypes = require(Types.ErrorTypes)
+local Arguments =  require(Flame.Objects.Arguments)
 local Util = require(Flame.Shared.Util)
 local ServerReporter, BaseError = require(Flame.Error) {
 	Source = 'Server',
@@ -86,6 +87,16 @@ function Command.makeContext <State>(commandHologram: FlameTypes.Command): Flame
 	}
 end
 
+function Command.makeContextArgument(commandContext: FlameTypes.CommandContext, argumentContext: FlameTypes.KeyList<string, FlameTypes.ArgumentContext>): FlameTypes.CommandContext
+	commandContext.Arguments = argumentContext
+	commandContext.GetArgument = function(self: FlameTypes.CommandContext, name: string)
+		assert(name, 'Expected argument for GetArgument got nil.')
+		assert(self.Arguments[name], ('%s is not a known argument in %s'):format(name, self.Name))
+
+		return self.Arguments[name].Input
+	end
+end
+
 function Command.makeContextProvider (subcommand: FlameTypes.Subcommand)
 	return {
 		Executor = function (commandContext: FlameTypes.CommandContext)
@@ -104,6 +115,7 @@ function Command.makeContextProvider (subcommand: FlameTypes.Subcommand)
 			return subcommand.Exec(commandContext)
 		end,
 		Realm = subcommand.Realm,
+		ArgumentStruct = subcommand.ArgumentStruct,
 	}
 end
 
@@ -113,6 +125,7 @@ function Command.makeCommandExecutor (
 	commandStyle: FlameTypes.CommandStyle
 )
 	local hoist, realm = commandOptions.Hoist, commandOptions.Realm
+	local arguments = commandOptions.Arguments or {}
 	return function (Executor: (context: FlameTypes.CommandContext) -> ())
         if not rawget(hoist, 'Subcommands') then
             hoist.Subcommands = {}
@@ -135,6 +148,7 @@ function Command.makeCommandExecutor (
 		hoist.Subcommands[reference] = {
 			Realm = realm,
 			Exec = Executor,
+			ArgumentStruct = Arguments.Struct(arguments)
 		}
 	end
 end

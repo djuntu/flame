@@ -24,6 +24,7 @@ local Error = require(Flame.Error) {
 Error:setSpeaker(Error.Speakers.CommandExecutionException)
 
 local Registry = require(script.Parent.Registry)
+local Arguments = require(script.Parent.Parent.Objects.Arguments)
 local Command = require(script.Parent.Parent.Objects.Command)
 local Dispatcher = {
 	Flame = nil,
@@ -72,6 +73,7 @@ function Dispatcher.Evaluate (
 	self: FlameTypes.Dispatcher,
 	executor: Player?,
 	command: FlameTypes.Command,
+	executable: FlameTypes.Executable,
 	rawArgs: string,
 	rawText: string
 ): (boolean, FlameTypes.CommandContext)
@@ -94,9 +96,16 @@ function Dispatcher.Evaluate (
 	end
 
 	-- check arguments
-	local satisfiesArguments = true
+	local satisfiesArguments, argumentContext = false, {}
+	if next(executable.ArgumentStruct) then
+		satisfiesArguments, argumentContext = Arguments.Dilute(executable.ArgumentStruct, rawArgs)
+	else
+		satisfiesArguments = true
+	end
 
-	local userCanRunCommand = satisfiesBeforeExecMdwr and satisfiesBeforeExecMdwr
+	Command.makeContextArgument(commandContext, argumentContext)
+
+	local userCanRunCommand = satisfiesBeforeExecMdwr and satisfiesArguments
 	return userCanRunCommand, commandContext
 end
 
@@ -125,7 +134,8 @@ function Dispatcher.EvaluateAndRunAsParsed (
 	if not command then return string.format(UNKNOWN_COMMAND, commandName) end
 	if not command:extract(commandEntryPoint) then return string.format(UNKNOWN_COMMAND_ENTRY, commandEntryPoint) end
 
-	local canRun, commandContext = self:Evaluate(executor, command, rawArgs, rawText)
+	local canRun, commandContext =
+		self:Evaluate(executor, command, command:extract(commandEntryPoint), rawArgs, rawText)
 	if canRun then return self:Execute(command, commandEntryPoint, commandContext) end
 end
 
@@ -145,6 +155,8 @@ function Dispatcher.EvaluateAndRun (
 ): FlameTypes.CommandExecutionResponse
 	local commandName: string, commandEntryPoint: string, rawArgs: string = Util.parseParams(rawText)
 	if not commandName then return string.format(INVALID_COMMAND_ARGUMENTS, rawText) end
+
+	print(commandName, commandEntryPoint, rawArgs)
 
 	local command: FlameTypes.Command = self.Flame.Registry:Get(commandName, 'Command')
 	if not command then return string.format(UNKNOWN_COMMAND, commandName) end

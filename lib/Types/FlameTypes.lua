@@ -1,3 +1,4 @@
+local UserInputService = game:GetService("UserInputService")
 local BuildTypes = require(script.Parent.BuildTypes)
 local ErrorTypes = require(script.Parent.ErrorTypes)
 
@@ -52,6 +53,8 @@ export type DispatchContext = {
     IsRobot: boolean,
     RawText: string,
     RawArgs: string,
+    Arguments: KeyList<string, ArgumentContext>,
+    GetArgument: (self: DispatchContext, arg: string) -> string,
 }
 export type ExecutionContext = {
     Name: string,
@@ -69,6 +72,7 @@ export type CommandEvaluator = (CommandContext) -> any?
 export type CommandOptions = {
     Hoist: CommandProps,
     Realm: Realm,
+    Arguments: (GivenArguments | {})?,
     Name: string?
 }
 export type CommandBuilder = (options: CommandOptions) -> (Executor: (context: CommandContext) -> ()) -> ()
@@ -79,6 +83,7 @@ export type UserCommandBuilder = {
 export type Executable = {
     Executor: CommandEvaluator,
     Realm: Realm,
+    ArgumentStruct: ArgumentStruct,
 }
 export type Command = {
     Name: string,
@@ -95,7 +100,8 @@ export type Command = {
 }
 export type Subcommand = {
     Realm: Realm,
-    Exec: CommandEvaluator
+    Exec: CommandEvaluator,
+    ArgumentStruct: ArgumentStruct,
 }
 export type CommandProps = {
     Name: string,
@@ -115,7 +121,7 @@ export type CommandExecutionResponse = string?
 export type Dispatcher = {
     Flame: _Flame,
 
-    Evaluate: (self: Dispatcher, executor: Player?, command: Command, rawArgs: string, rawText: string) -> (boolean, CommandContext),
+    Evaluate: (self: Dispatcher, executor: Player?, command: Command, executable: Executable, rawArgs: string, rawText: string) -> (boolean, CommandContext),
     Provide: (self: Dispatcher, executor: Player?, command: Command, rawArgs: string, rawText: string) -> CommandContext,
     EvaluateAndRun: (self: Dispatcher, executor: Player?, rawText: string) -> CommandExecutionResponse,
     Dispatch: (self: Dispatcher, rawText: string) -> CommandExecutionResponse,
@@ -136,9 +142,57 @@ export type _Flame = {
     }
 }
 
+export type Hint = List<string>
+export type Arguments = {
+    Types: TypeRegistry,
+
+    StructHasArgument: (struct: ArgumentStruct, name: string) -> number | boolean?,
+    Struct: (givenArguments: GivenArguments) -> ArgumentContext,
+    Evaluator: (stringType: string, argumentInput: string?) -> (boolean, Hint),
+    Seems: (struct: ArgumentStruct, argumentName: string, userInput: string?) -> boolean,
+    Dilute: (struct: ArgumentStruct, userInput: string?) -> (boolean, List<ArgumentContext>),
+    Context: (name: string, userInput: string?) -> ArgumentContext,
+    Register: () -> (),
+    Inherit: (name: string) -> ArgumentType,
+    Make: (argumentName: string, argumentEvaluator: DataType | EnumType) -> (() -> (string, DataType | EnumType)),
+    MakeEnumType: (name: string, list: List<string>) -> EnumType,
+    MakeDataType: (entry: DataType?) -> DataType,
+    typeOf: (t: DataType | EnumType) -> string
+}
+export type DataType = {
+    Transform: (value: any?) -> any?,
+    Validate: (value: string) -> boolean|string,
+    Parse: (value: string) -> any?,
+    Search: ((value: string) -> List<string>)?,
+}
+export type ArgumentStruct = {
+    [number]: {
+        Name: string,
+        Evaluate: (input: string) -> (boolean, List<string>),
+        Transform: (value: any?) -> any?,
+        Parse: (value: string) -> any?,
+        Search: ((value: string) -> List<string>)?,
+    }
+}
+export type GivenArguments = List<CommandArgument>
+export type ArgumentContext = {
+    Name: string,
+    Input: string,
+}
+export type CommandArgument = {
+    Type: string,
+    Name: string,
+    Description: string?,
+    Optional: boolean?
+}
+export type EnumType = KeyList<string, boolean>
+export type ArgumentType = () -> (string, DataType | ArgumentType)
+export type TypeRegistry = {[string]: ArgumentType}
+
 export type _View = {
     addCommand: (self: _Flame, module: ModuleScript) -> _Flame,
     addMiddleware: (self: _Flame, module: ModuleScript) -> _Flame,
+    addType: (self: _Flame, module: ModuleScript) -> _Flame,
 }
 
 export type FlameMain<Context> = BuildTypes.Builder<Context> & _Flame & _View

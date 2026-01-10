@@ -19,8 +19,16 @@ end
 CommandBuilder.Primary {
 	Hoist = Command,
 	Realm = 'Shared',
+    Arguments = {
+        {
+            Type = 'People',
+            Name = 'target',
+            Description = 'the target',
+            Optional = true,
+        },
+    }
 }(function (context)
-	print(context)
+	print(context:GetArgument('target'))
 end)
 
 CommandBuilder.Secondary {
