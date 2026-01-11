@@ -2,6 +2,7 @@
 -- provide straightforward command creation whilst exposing more features to the user
 -- to build more complex applications.
 
+local runService = game:GetService('RunService')
 local Flame = script
 
 local INVALID_INDEX_ERROR = 'Attempted to index Flame with forbidden/unknown key \'%s\'.'
@@ -54,6 +55,10 @@ return function <C>(userBuilderOptions: BuildTypes.FlameBuildConfig?): FlameType
 		_Flame.Dispatcher = require(Flame.Shared.Dispatcher)(_Flame)
 		_Flame.Registry = require(Flame.Shared.Registry)(_Flame)
 		_Flame.Middleware = {}
+
+		if runService:IsClient() then
+			require(Flame.Create.Gui)(_Flame)
+		end
 
 		local UserView: C = View(_Flame)
 
