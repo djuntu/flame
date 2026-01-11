@@ -1,25 +1,25 @@
 export type FlameBuildConfig = {
-    --NetworkRoot: Folder?,
-    EnableServerClientComms: boolean?,
-    DoNotAnnounceRunner: boolean?,
+	DoNotAnnounceRunner: boolean?,
+	EntryPoints: { Enum.KeyCode | BindableEvent },
 }
 
 export type ServerBuildProps = {
-    ContextCommunicator: RemoteEvent?,
-    DispatcherReceiver: RemoteFunction,
-    DoNotAnnounceRunner: boolean?,
+	ContextCommunicator: RemoteEvent?,
+	DispatcherReceiver: RemoteFunction,
+	DoNotAnnounceRunner: boolean?,
 }
 export type ClientBuildProps = {
-    ContextCommunicator: RemoteEvent?,
-    DispatcherReceiver: RemoteFunction,
-    DoNotAnnounceRunner: boolean?,
+	ContextCommunicator: RemoteEvent?,
+	DispatcherReceiver: RemoteFunction,
+	DoNotAnnounceRunner: boolean?,
+	EntryPoints: { Enum.KeyCode | BindableEvent },
 }
 
 export type Builder<P> = {
-    __call: () -> Builder<P>,
-    IS_BUILDING: boolean?,
-    HAS_BUILT: boolean?,
-    Props: P
+	__call: () -> Builder<P>,
+	IS_BUILDING: boolean?,
+	HAS_BUILT: boolean?,
+	Props: P,
 }
 
 return {}
