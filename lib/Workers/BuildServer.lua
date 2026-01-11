@@ -47,7 +47,7 @@ function BUILD:__call (buildConfig: BuildTypes.FlameBuildConfig)
 
 	local serverBuilt, response: BuildTypes.ServerBuildProps | string do
 		serverBuilt, response = pcall(function()
-			local oneWayComm, dispatcher = require(lib.Create.Net) ( buildConfig.EnableServerClientComms and 'ContexComm', 'Dispatcher', buildConfig.NetworkRoot )
+			local oneWayComm, dispatcher = require(lib.Create.Net) ( 'ContexComm', 'Dispatcher', buildConfig.NetworkRoot )
 			return {
 				ContextCommunicator = oneWayComm,
 				DispatcherReceiver = dispatcher,
