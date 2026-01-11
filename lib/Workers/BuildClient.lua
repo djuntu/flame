@@ -47,10 +47,30 @@ function BUILD:__call (buildConfig: BuildTypes.FlameBuildConfig)
 	do
 		clientBuilt, response = pcall(function ()
 			local netRoot = lib:FindFirstChild('Net')
+			local entryPoints = {}
+			if buildConfig.EntryPoints and typeof(buildConfig.EntryPoints) == 'table' then
+				for _, point: Instance | Enum in pairs(buildConfig.EntryPoints) do
+					if typeof(point) ~= 'Enum' and typeof(point) ~= 'Instance' then
+						warn(`{point} is not an appropriate entry point.`)
+						continue
+					end
+
+					if typeof(point) == 'Instance' and not point:IsA('BindableEvent') then
+						warn(`{point} is not an appropriate entry point.`)
+						continue
+					end
+
+					table.insert(entryPoints, point)
+				end
+			end
+
+			if not next(entryPoints) then entryPoints = { Enum.KeyCode.F2 } end
+
 			return {
 				ContextCommunicator = netRoot:FindFirstChild('ContexComm'),
 				DispatcherReceiver = netRoot:FindFirstChild('Dispatcher'),
-                DoNotAnnounceRunner = buildConfig.DoNotAnnounceRunner,
+				DoNotAnnounceRunner = buildConfig.DoNotAnnounceRunner,
+				EntryPoints = entryPoints,
 			}
 		end)
 
