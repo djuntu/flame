@@ -21,7 +21,7 @@ end
 function Autocomplete:Autocomplete(targetInput: string?)
     if not targetInput then
         local selected = self:GetSelected()
-        
+
         if not selected then
             return
         end
@@ -65,10 +65,23 @@ function Autocomplete:Select(n: number, userInput: string)
     end
 
     self:SetSelectedInput('')
+    self:ClearOldSelectons()
     self.CurrentSelectionMount = n
 
     local textButton = self:GetSelected()
     self:SetSelectedInput(userInput)
+
+    textButton.BackgroundColor3 = Color3.fromRGB(20, 20, 61)
+    textButton.BackgroundTransparency = 0.4
+end
+
+function Autocomplete:ClearOldSelectons()
+    for _, member in pairs(self.Object:GetChildren()) do
+        if member:IsA('TextButton') then
+            member.BackgroundColor3 = Color3.fromRGB(3, 3, 9)
+            member.BackgroundTransparency = 0.7
+        end
+    end
 end
 
 function Autocomplete:SetSelectedInput(userInput: string)
@@ -77,13 +90,6 @@ function Autocomplete:SetSelectedInput(userInput: string)
         return
     end
 
-    if userInput == '' then
-        textButton.BackgroundColor3 = Color3.fromRGB(3, 3, 9)
-        textButton.BackgroundTransparency = 0.7
-    else
-        textButton.BackgroundColor3 = Color3.fromRGB(20, 20, 61)
-        textButton.BackgroundTransparency = 0.4
-    end
     local input = ''
     local expectedInput = textButton.Autocomplete.Text
 

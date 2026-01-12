@@ -169,7 +169,6 @@ return function (Main)
 					setCommandAutocompleteOptions()
 					return
 				end
-                print('evaluating arguments?')
 
 				local argumentIndex = math.max(1, table.maxn(characterSets))
 

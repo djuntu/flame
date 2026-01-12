@@ -47,11 +47,12 @@ function Window:SetProcessableEntry (bool: boolean, canProcessResponse: string?)
 	self.CanProcessResponse = canProcessResponse or ''
 end
 
-function Window:Focus ()
+function Window:Focus (textIsCleared: boolean?)
 	local writer = self.Writer
 	local textBox = writer.Object.TextBox
 
 	textBox:CaptureFocus()
+	if textIsCleared then return end
 	textBox.CursorPosition = #textBox.Text + 1
 end
 
@@ -73,17 +74,18 @@ function Window:FocusLost (enterPressed: boolean)
 
 	textBox.Text = Util.trim(textBox.Text)
 
-	self:Focus()
 	self:GoToFocus()
 
 	if enterPressed then
-        local commandEntry = textBox.Text
-        if self.CanProcess then
+		local commandEntry = textBox.Text
+		if self.CanProcess then
 			self:ClearWindowInput()
 			self:GoToFocus()
 		end
 		self.Main.Dispatch(commandEntry)
 	end
+
+	self:Focus(enterPressed and self.CanProcess)
 end
 
 function Window:Toggle (toggle: boolean)
