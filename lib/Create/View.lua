@@ -35,9 +35,7 @@ local function addType (self: FlameTypes._Flame, module: ModuleScript)
 	end
 
 	local callback = require(module)
-	if not typeof(callback) == 'function' then
-		error('AddType expects callback function as only return!')
-	end
+	if not typeof(callback) == 'function' then error('AddType expects callback function as only return!') end
 	Arguments.Register(callback(Arguments))
 	return self
 end
@@ -60,7 +58,7 @@ local function addMiddleware (self: FlameTypes._Flame, module: ModuleScript)
 		self.Middleware[mdwrType] = callback
 	end
 
-    return self
+	return self
 end
 
 --[[
@@ -79,7 +77,7 @@ return function <Context>(Flame: FlameTypes.FlameMain<Context>)
 	Flame.addMiddleware = function (...): M
 		return addMiddleware(...)
 	end
-	Flame.addType = function(...): M
-		return addType(...)	
+	Flame.addType = function (...): M
+		return addType(...)
 	end
 end

@@ -53,13 +53,13 @@ function Dispatcher.Provide (
 		RawText = rawText,
 		RawArgs = rawArgs,
 
-		Reply = function(_, communication: FlameTypes.ContextCommuniction)
+		Reply = function (_, communication: FlameTypes.ContextCommuniction)
 			if runService:IsClient() then
 				self.Flame.Gui:Communicate(communication)
 			else
 				self.Flame.Props.ContextCommunicator:InvokeClient(executor, communication)
 			end
-		end
+		end,
 	}
 
 	local commandContext = Command.stackCommandContext(dispatchContext, Command.makeContext(command))

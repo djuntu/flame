@@ -1,3 +1,4 @@
+-- Initializes the command line interface with both the Window and Autocomplete components mounted.
 local Players = game:GetService('Players')
 local StarterGui = game:GetService('StarterGui')
 
@@ -11,11 +12,42 @@ local Util = require(script.Parent.Parent.Parent.Shared.Util)
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer.PlayerGui
 
+--[[
+	@interface Initializer
+	@within Create.Gui
+
+	@public
+	@type Initializer
+]]
 local Initializer = {
 	Gui = nil,
 	Window = nil,
 	Autocomplete = nil,
 }
+--[[
+	@prop Gui
+	@within Initializer
+
+	@public
+	@type Types.CLI
+	@readonly
+]]
+--[[
+	@prop Window
+	@within Initializer
+
+	@public
+	@type Types.Window
+	@readonly
+]]
+--[[
+	@prop Autocomplete
+	@within Initializer
+
+	@public
+	@type Types.Autocomplete
+	@readonly
+]]
 
 return function (Main)
 	local Gui: Types.CLI
@@ -30,8 +62,8 @@ return function (Main)
 	Initializer.Gui = Gui
 	Initializer.Main = Main
 
-    Initializer.UserInput = ''
-    Initializer.UserArgument = nil
+	Initializer.UserInput = ''
+	Initializer.UserArgument = nil
 	Initializer.Window = require(script.Window).new(Initializer)
 	Initializer.Autocomplete = require(script.Autocomplete).new(Initializer)
 	Initializer.WaitingOnDispatchResponse = false
@@ -41,7 +73,7 @@ return function (Main)
 	local Flame: FlameTypes.FlameMain<BuildTypes.ClientBuildProps> = Main.Flame
 
 	function Initializer.Dispatch (text: string)
-        text = Initializer.GetEntryText(text)
+		text = Initializer.GetEntryText(text)
 
 		local canEnter, response = Window.CanProcess, Window.CanProcessResponse
 
@@ -67,23 +99,19 @@ return function (Main)
 		Initializer.WaitingOnDispatchResponse = false
 	end
 
-    function Initializer.FillAutocomplete(targetInput: string)
-        local textBox: TextBox = Initializer.Window.Writer.Object.TextBox
-        local cursorPosition = textBox.CursorPosition
+	function Initializer.FillAutocomplete (targetInput: string)
+		local textBox: TextBox = Initializer.Window.Writer.Object.TextBox
+		local cursorPosition = textBox.CursorPosition
 
-        textBox.Text = Util.targettedSubstringReplace(
-            textBox.Text,
-            cursorPosition,
-            Initializer.UserInput,
-            targetInput
-        ) .. ' '
+		textBox.Text = Util.targettedSubstringReplace(textBox.Text, cursorPosition, Initializer.UserInput, targetInput)
+			.. ' '
 
-        Window:Focus()
-    end
+		Window:Focus()
+	end
 
-    function Initializer.GetEntryText(text: string)
-        return Util.trim(text):gsub('[\t\n]', '')
-    end
+	function Initializer.GetEntryText (text: string)
+		return Util.trim(text):gsub('[\t\n]', '')
+	end
 
 	function Initializer.GetEntryPosition (): UDim2
 		local X_OFFSET, Y_OFFSET = 40, 40
@@ -104,12 +132,10 @@ return function (Main)
 			text = Initializer.GetEntryText(text)
 
 			local function setCommandAutocompleteOptions ()
-                if string.find(text, ' ') then
-                    text = text:split(' ')[1]
-                end
+				if string.find(text, ' ') then text = text:split(' ')[1] end
 
 				Initializer.UserArgument = nil
-                Initializer.UserInput = text
+				Initializer.UserInput = text
 				local commands = Flame.Registry:GetCommands()
 				autoCompleteOptions = Util.filterKeys(commands, function (key)
 					return Util.startsWith(key, string.lower(text))
@@ -235,11 +261,11 @@ return function (Main)
 					isListableEntry and Util.getListItemFromCharIndex(input, cursorPosition)
 				)
 
-                if isListableEntry then
-                    Initializer.UserInput = Util.getListItemFromCharIndex(input, cursorPosition)
-                else
-                    Initializer.UserInput = input
-                end
+				if isListableEntry then
+					Initializer.UserInput = Util.getListItemFromCharIndex(input, cursorPosition)
+				else
+					Initializer.UserInput = input
+				end
 				autoCompleteOptions = hintList
 				if not isOK then
 					Window:SetProcessableEntry(
@@ -266,7 +292,7 @@ return function (Main)
 			Autocomplete:Visible(true)
 			Autocomplete:DisplayOptions(autoCompleteOptions)
 			Autocomplete:SetPosition(Initializer.GetEntryPosition())
-            Autocomplete:Select(1, Initializer.UserInput)
+			Autocomplete:Select(1, Initializer.UserInput)
 
 			if not isEnteringArguments or not Initializer.UserArgument then
 				Autocomplete:SetContext('command', 'Command', 'The name of the command to be executed.')

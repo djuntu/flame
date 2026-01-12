@@ -20,7 +20,10 @@ local Middleware = {
 	Types = Util.makeDictionary { 'BeforeExecution', 'AfterExecution' },
 }
 
-function Middleware.new (mdwrType: FlameTypes.MdwrType, callback: (context: FlameTypes.CommandContext) -> boolean?): FlameTypes.MiddlewareReference
+function Middleware.new (
+	mdwrType: FlameTypes.MdwrType,
+	callback: (context: FlameTypes.CommandContext) -> boolean?
+): FlameTypes.MiddlewareReference
 	if not mdwrType or not Middleware.Types[mdwrType] then
 		Error:setContext(`{mdwrType} is not a valid MiddlewareType.`)
 			:recommend('Recommended types: BeforeExecution, AfterExecution')

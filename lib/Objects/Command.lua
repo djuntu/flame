@@ -7,7 +7,7 @@ local Flame = script.Parent.Parent
 local Types = Flame.Types
 local FlameTypes = require(Types.FlameTypes)
 local ErrorTypes = require(Types.ErrorTypes)
-local Arguments =  require(Flame.Objects.Arguments)
+local Arguments = require(Flame.Objects.Arguments)
 local Util = require(Flame.Shared.Util)
 local ServerReporter, BaseError = require(Flame.Error) {
 	Source = 'Server',
@@ -31,7 +31,7 @@ Command.prototype.__index = Command
 Command.prototype = setmetatable({}, Command.prototype)
 
 function Command.new (command: FlameTypes.CommandProps): FlameTypes.Command
-    local aliases = Command.formatAliases(command.Aliases)
+	local aliases = Command.formatAliases(command.Aliases)
 	local CommandHologram = {
 		Name = Command.formatName(command.Name),
 		Aliases = aliases,
@@ -113,9 +113,12 @@ end
 	@private
 	@notprototypical
 ]]
-function Command.makeContextArgument(commandContext: FlameTypes.CommandContext, argumentContext: FlameTypes.KeyList<string, FlameTypes.ArgumentContext>): FlameTypes.CommandContext
+function Command.makeContextArgument (
+	commandContext: FlameTypes.CommandContext,
+	argumentContext: FlameTypes.KeyList<string, FlameTypes.ArgumentContext>
+): FlameTypes.CommandContext
 	commandContext.Arguments = argumentContext
-	commandContext.GetArgument = function(self: FlameTypes.CommandContext, name: string)
+	commandContext.GetArgument = function (self: FlameTypes.CommandContext, name: string)
 		assert(name, 'Expected argument for GetArgument got nil.')
 		assert(self.Arguments[name], ('%s is not a known argument in %s'):format(name, self.Name))
 
@@ -171,9 +174,7 @@ function Command.makeCommandExecutor (
 	local hoist, realm = commandOptions.Hoist, commandOptions.Realm
 	local arguments = commandOptions.Arguments or {}
 	return function (Executor: (context: FlameTypes.CommandContext) -> ())
-        if not rawget(hoist, 'Subcommands') then
-            hoist.Subcommands = {}
-        end
+		if not rawget(hoist, 'Subcommands') then hoist.Subcommands = {} end
 		_exception
 			:setContext(('Invalid Executor expected type function got %s in %s'):format(typeof(Executor), hoist.Name))
 			:recommend('You must pass a function as the only argument of your command builder.')
@@ -192,7 +193,7 @@ function Command.makeCommandExecutor (
 		hoist.Subcommands[reference] = {
 			Realm = realm,
 			Exec = Executor,
-			ArgumentStruct = Arguments.Struct(arguments)
+			ArgumentStruct = Arguments.Struct(arguments),
 		}
 	end
 end
@@ -205,8 +206,8 @@ end
 	@private
 	@notprototypical
 ]]
-function Command.formatName(name: string): string
-    return name:lower():gsub('%s+', '')
+function Command.formatName (name: string): string
+	return name:lower():gsub('%s+', '')
 end
 
 --[[
@@ -218,16 +219,14 @@ end
 	@private
 	@notprototypical
 ]]
-function Command.formatAliases(aliases: {string}?)
-    if aliases and typeof(aliases) == 'table' and next(aliases) then
-        Util.map(aliases, function(alias: string)
-            if typeof(alias) ~= 'string' then
-                return nil
-            end
+function Command.formatAliases (aliases: { string }?)
+	if aliases and typeof(aliases) == 'table' and next(aliases) then
+		Util.map(aliases, function (alias: string)
+			if typeof(alias) ~= 'string' then return nil end
 
-            return Command.formatName(alias)
-        end)
-    end
+			return Command.formatName(alias)
+		end)
+	end
 end
 
 --[[

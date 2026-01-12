@@ -1,3 +1,4 @@
+-- Handles initializing and managing the CLI window for user input and output.
 local Players = game:GetService('Players')
 local Types = require(script.Parent.Parent.Types)
 local Components = script.Parent.Parent.Components
@@ -8,6 +9,13 @@ local Writer = require(Components.Writer)
 local Window: Types.Window = {}
 Window.__index = Window
 
+--[[
+	@interface Window
+	@within Initializer
+
+	@public
+	@type Window
+]]
 function Window.new (Main: Types.InitializedCLIRegistry)
 	local self = setmetatable({}, Window)
 	self.Writer = Writer.new()
@@ -21,6 +29,19 @@ function Window.new (Main: Types.InitializedCLIRegistry)
 	return self
 end
 
+--[[
+	@method WriteLine
+	@within Window
+	Writes a line to the CLI window.
+
+	@public
+	@param text: string
+	@param lineStyle: Types.LineStyle?
+	@param color: Color3?
+	@param header: string?
+	@param expression: string?
+	@returns void
+]]
 function Window:WriteLine (
 	text: string,
 	lineStyle: Types.LineStyle?,
@@ -42,11 +63,30 @@ function Window:WriteLine (
 	Util.adjustConsoleSize(window, 30, 300)
 end
 
+--[[
+	@method SetProcessableEntry
+	@within Window
+	Sets whether the current entry can be processed or not.
+
+	@public
+	@param bool: boolean
+	@param canProcessResponse: string?
+	@returns void
+]]
 function Window:SetProcessableEntry (bool: boolean, canProcessResponse: string?)
 	self.CanProcess = bool
 	self.CanProcessResponse = canProcessResponse or ''
 end
 
+--[[
+	@method Focus
+	@within Window
+	Focuses the CLI window input box.
+
+	@public
+	@param textIsCleared: boolean?
+	@returns void
+]]
 function Window:Focus (textIsCleared: boolean?)
 	local writer = self.Writer
 	local textBox = writer.Object.TextBox
@@ -56,12 +96,27 @@ function Window:Focus (textIsCleared: boolean?)
 	textBox.CursorPosition = #textBox.Text + 1
 end
 
+--[[
+	@method ClearWindowInput
+	@within Window
+	Clears the current input in the CLI window.
+
+	@public
+	@returns void
+]]
 function Window:ClearWindowInput ()
-	-- reset autocomplete
 	local textBox = self.Writer.Object.TextBox
 	textBox.Text = ''
 end
 
+--[[
+	@method GoToFocus
+	@within Window
+	Scrolls the CLI window to the bottom.
+
+	@public
+	@returns void
+]]
 function Window:GoToFocus ()
 	local cli: Types.CLI = self.Main.Gui
 	local window = cli.Window
@@ -69,6 +124,15 @@ function Window:GoToFocus ()
 	window.CanvasPosition = Vector2.new(0, window.AbsoluteCanvasSize.Y)
 end
 
+--[[
+	@method FocusLost
+	@within Window
+	Handles when the CLI window input box loses focus.
+
+	@public
+	@param enterPressed: boolean
+	@returns boolean
+]]
 function Window:FocusLost (enterPressed: boolean)
 	local textBox: TextBox = self.Writer.Object.TextBox
 
@@ -88,6 +152,15 @@ function Window:FocusLost (enterPressed: boolean)
 	self:Focus(enterPressed and self.CanProcess)
 end
 
+--[[
+	@method Toggle
+	@within Window
+	Toggles the visibility of the CLI window.
+
+	@public
+	@param toggle: boolean
+	@returns void
+]]
 function Window:Toggle (toggle: boolean)
 	local scrollingFrame = self.Main.Gui.Window
 	if toggle then

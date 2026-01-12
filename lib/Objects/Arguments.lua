@@ -210,9 +210,7 @@ function Arguments.Evaluator (
 	hintOnly: string?
 ): (boolean, FlameTypes.Hint)
 	local registeredType = Arguments.Types[stringType]
-	if typeof(argumentInput) == 'string' then
-		argumentInput = Util.trim(argumentInput or '')
-	end
+	if typeof(argumentInput) == 'string' then argumentInput = Util.trim(argumentInput or '') end
 
 	if not registeredType then
 		Error:setContext(('%s is not a registered type!'):format(stringType))
@@ -344,7 +342,10 @@ function Arguments.Dilute (
 	local parsedInputs = Util.parseArgs(userInput or '')
 	for index, structInner in pairs(struct) do
 		local success, input = pcall(structInner.Parse, parsedInputs[index])
-		if not success then argumentsSeemOK = false break end
+		if not success then
+			argumentsSeemOK = false
+			break
+		end
 		if not structInner.Evaluate(input) then argumentsSeemOK = false end
 
 		contextMesh[structInner.Name] = Arguments.Context(structInner.Name, structInner.Transform(input))

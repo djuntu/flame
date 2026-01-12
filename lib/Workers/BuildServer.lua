@@ -37,17 +37,16 @@ function BUILD:__call (buildConfig: BuildTypes.FlameBuildConfig)
 	if self.IS_BUILDING or self.HAS_BUILT then
 		Error:setContext('Attempted to rebuild Flame Server.')
 			:setTraceback(debug.traceback())
-			:recommend(
-				'Do not try to manually require the BuildServer directly. Remove the import at this traceback.'
-			)
+			:recommend('Do not try to manually require the BuildServer directly. Remove the import at this traceback.')
 			:say()
 		return
 	end
 	self.IS_BUILDING = true
 
-	local serverBuilt, response: BuildTypes.ServerBuildProps | string do
-		serverBuilt, response = pcall(function()
-			local oneWayComm, dispatcher = require(lib.Create.Net) ( 'ContextComm', 'Dispatcher', buildConfig.NetworkRoot )
+	local serverBuilt, response: BuildTypes.ServerBuildProps | string
+	do
+		serverBuilt, response = pcall(function ()
+			local oneWayComm, dispatcher = require(lib.Create.Net)('ContextComm', 'Dispatcher', buildConfig.NetworkRoot)
 			return {
 				ContextCommunicator = oneWayComm,
 				DispatcherReceiver = dispatcher,
@@ -57,11 +56,9 @@ function BUILD:__call (buildConfig: BuildTypes.FlameBuildConfig)
 
 		if not serverBuilt then
 			Error:setContext('Internal exception encountered building Flame.\n' .. tostring(response))
-			:setTraceback(debug.traceback())
-			:recommend(
-				'Reinstall the Flame wally package and/or, try install a younger version of Flame.'
-			)
-			:say()
+				:setTraceback(debug.traceback())
+				:recommend('Reinstall the Flame wally package and/or, try install a younger version of Flame.')
+				:say()
 		else
 			self.Props = response :: BuildTypes.ServerBuildProps
 		end

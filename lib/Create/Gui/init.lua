@@ -1,3 +1,5 @@
+-- Handles the initialization of the command-line interface and managing external
+-- inputs into the CLI.
 local RunService = game:GetService('RunService')
 local UserInputService = game:GetService('UserInputService')
 
@@ -12,13 +14,53 @@ local GuiTypes = require(script.Types)
 local Initializer = require(script.Initializer)
 local Events = require(script.Events)
 
+--[[
+	@interface CLIRegistry
+	@within Create.Gui
+
+	@public
+	@type CLIRegistry
+]]
 local Gui: GuiTypes.CLIRegistry = {
 	Events = nil,
 	Handler = nil,
 	Flame = nil,
 }
 Gui.__index = Gui
+--[[
+	@prop Events
+	@within CLIRegistry
 
+	@public
+	@type GuiTypes.Events
+	@readonly
+]]
+--[[
+	@prop Handler
+	@within CLIRegistry
+
+	@public
+	@type GuiTypes.InitializedCLIRegistry
+	@readonly
+]]
+--[[
+	@prop Flame
+	@within CLIRegistry
+
+	@public
+	@type FlameMain<BuildTypes.ClientBuildProps>
+	@readonly
+]]
+
+--[[
+	@method Communicate
+	@within CLIRegistry
+	Handles communication from the command context to the CLI window.
+
+	@public
+	@param communication: Types.ContextCommuniction
+	@returns void
+]]
 function Gui:Communicate (communication: Types.ContextCommuniction)
 	local Handler: GuiTypes.InitializedCLIRegistry = self.Handler
 
@@ -63,6 +105,14 @@ function Gui:Communicate (communication: Types.ContextCommuniction)
 	end
 end
 
+--[[
+	@function create
+	@within CLIRegistry
+	Creates the CLI registry object.
+
+	@private
+	@returns CLIRegistry
+]]
 function Gui.create ()
 	local self = setmetatable(Gui, Gui)
 
@@ -103,9 +153,7 @@ function Gui.create ()
 
 	TextBox:GetPropertyChangedSignal('Text'):Connect(function ()
 		self.Handler.Window:GoToFocus()
-		if TextBox.Text:gmatch('\t') then
-			TextBox.Text = TextBox.Text:gsub('\t', '')
-		end
+		if TextBox.Text:gmatch('\t') then TextBox.Text = TextBox.Text:gsub('\t', '') end
 		if self.Handler.OnTextChanged then self.Handler.OnTextChanged(TextBox.Text) end
 	end)
 
@@ -116,6 +164,15 @@ function Gui.create ()
 	return self
 end
 
+--[[
+	@method InvokeEvent
+	@within CLIRegistry
+	Invokes an event from the Events table.
+
+	@public
+	@param eventName: string
+	@returns void
+]]
 function Gui:InvokeEvent (eventName: string, ...)
 	if self.Events[eventName] then self.Events[eventName](...) end
 end

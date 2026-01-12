@@ -327,8 +327,8 @@ end
 
     @returns KeyList<string, Command>
 ]]
-function Registry:GetCommands(): FlameTypes.KeyList<string, FlameTypes.Command>
-    return self.Commands
+function Registry:GetCommands (): FlameTypes.KeyList<string, FlameTypes.Command>
+	return self.Commands
 end
 
 --[[

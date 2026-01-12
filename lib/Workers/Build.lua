@@ -11,8 +11,8 @@ local BuildTypes = require(lib.Types.BuildTypes)
     @returns FlameBuildTable
 ]]
 return function <C>(config: BuildTypes.FlameBuildConfig): BuildTypes.Builder<C>
-    local isClient = runService:IsClient()
+	local isClient = runService:IsClient()
 
-    local builder = isClient and require(lib.Workers.BuildClient) or require(lib.Workers.BuildServer)
-    return builder(config)
+	local builder = isClient and require(lib.Workers.BuildClient) or require(lib.Workers.BuildServer)
+	return builder(config)
 end

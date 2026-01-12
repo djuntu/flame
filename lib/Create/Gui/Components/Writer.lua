@@ -1,3 +1,4 @@
+-- Creates a writer object which is displayed in the Window.
 local Types = require(script.Parent.Parent.Types)
 
 local Writer = {}
@@ -5,6 +6,13 @@ Writer.__index = Writer
 
 local HEADER_TEXT_COLOR_3 = Color3.fromRGB(26, 255, 0)
 
+--[[
+	@interface Writer
+	@within Components
+
+	@public
+	@type Writer
+]]
 function Writer.new ()
 	local self = {}
 	self.Object = nil
@@ -13,21 +21,57 @@ function Writer.new ()
 	return self
 end
 
+--[[
+    @method SetContent
+    @within Writer
+    Sets the content of the writer object.
+
+    @public
+    @param text: string
+    @returns Writer
+]]
 function Writer:SetContent (text: string)
 	self.Object:FindFirstChild('TextBox').Text = text
 	return self
 end
 
-function Writer:SetContentColor(color: Color3)
-    self.Object:FindFirstChild('TextBox').TextColor3 = color
+--[[
+    @method SetContentColor
+    @within Writer
+    Sets the color of the Writer text.
+
+    @public
+    @param color: Color3
+    @returns Writer
+]]
+function Writer:SetContentColor (color: Color3)
+	self.Object:FindFirstChild('TextBox').TextColor3 = color
 	return self
 end
 
+--[[
+    @method SetHeader
+    @within Writer
+    Sets the header text if the Writer's LineStyle is Header.
+
+    @public
+    @param text: string
+    @returns Writer
+]]
 function Writer:SetHeader (text: string)
 	self.Object:FindFirstChild('TextLabel').Text = text
 	return self
 end
 
+--[[
+    @method Create
+    @within Writer
+    Creates a writer object for the given parent GuiObject.
+
+    @public
+    @param parent: GuiObject
+    @returns Writer
+]]
 function Writer:Create (parent: GuiObject)
 	local Frame = Instance.new('Frame')
 	Frame.Name = 'Writer'
@@ -62,13 +106,13 @@ function Writer:Create (parent: GuiObject)
 	User.AutomaticSize = Enum.AutomaticSize.X
 	User.Parent = Frame
 
-    local Layout = Instance.new('UIListLayout')
-    Layout.FillDirection = Enum.FillDirection.Horizontal
-    Layout.Padding = UDim.new(0, 5)
-    Layout.SortOrder = Enum.SortOrder.LayoutOrder
-    Layout.Parent = Frame
+	local Layout = Instance.new('UIListLayout')
+	Layout.FillDirection = Enum.FillDirection.Horizontal
+	Layout.Padding = UDim.new(0, 5)
+	Layout.SortOrder = Enum.SortOrder.LayoutOrder
+	Layout.Parent = Frame
 
-    Frame.Parent = parent
+	Frame.Parent = parent
 	self.Object = Frame
 	return self
 end
