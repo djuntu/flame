@@ -24,11 +24,17 @@ CommandBuilder.Primary {
             Type = 'People',
             Name = 'target',
             Description = 'the target',
-            Optional = true,
+            Optional = false,
         },
     }
 }(function (context)
 	print(context:GetArgument('target'))
+    context:Reply({
+        Message = context:GetArgument('target')[1],
+        Color = Color3.fromRGB(255, 85, 241),
+        LineStyle = 'Expressive'
+    })
+    return 'Hello'
 end)
 
 CommandBuilder.Secondary {
