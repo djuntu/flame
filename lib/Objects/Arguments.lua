@@ -66,14 +66,12 @@ local Arguments: FlameTypes.Arguments = {
 	@param name: string
 	@returns number: Index | boolean=false
 ]]
-function Arguments.StructHasArgument(struct: FlameTypes.ArgumentStruct, name: string)
-    for index, argument in pairs(struct) do
-        if argument.Name == name then
-            return index
-        end
-    end
+function Arguments.StructHasArgument (struct: FlameTypes.ArgumentStruct, name: string)
+	for index, argument in pairs(struct) do
+		if argument.Name == name then return index end
+	end
 
-    return false
+	return false
 end
 
 --[[
@@ -89,7 +87,10 @@ function Arguments.Struct (givenArguments: FlameTypes.GivenArguments): FlameType
 	for i, argument in ipairs(givenArguments) do
 		local structTable = argument.Optional and optional or required
 
-		if Arguments.StructHasArgument(required, argument.Name) or Arguments.StructHasArgument(optional, argument.Name) then
+		if
+			Arguments.StructHasArgument(required, argument.Name)
+			or Arguments.StructHasArgument(optional, argument.Name)
+		then
 			Error:setContext(('Clashnig attempt on ArgumentStruct index for key %s.'):format(argument.Name))
 				:setTraceback(debug.traceback())
 				:recommend(
@@ -117,24 +118,32 @@ function Arguments.Struct (givenArguments: FlameTypes.GivenArguments): FlameType
 		end
 
 		local isDataType = Arguments.typeOf(registeredType) == 'DataType'
-        table.insert(structTable, {
-            Name = argument.Name,
-            Evaluate = function (argumentInput: string)
-                return Arguments.Evaluator(argument.Type, argumentInput)
-            end,
-			Transform = isDataType and registeredType.Transform or function(value: string)
+
+		table.insert(structTable, {
+			Name = argument.Name,
+			Type = argument.Type,
+			Description = argument.Description,
+			Optional = argument.Optional or false,
+			Evaluate = function (argumentInput: string, hintOnly: string?)
+				local Search = isDataType and registeredType.Search or Arguments.SearchLikeEnum(type)
+				if argumentInput == nil or argumentInput == '' then
+					if not Search then return argument.Optional or false, {} end
+
+					return argument.Optional or false, Search('')
+				end
+				return Arguments.Evaluator(argument.Type, argumentInput, Search, hintOnly)
+			end,
+			Transform = isDataType and registeredType.Transform or function (value: string)
 				for target, _ in pairs(registeredType) do
-					if string.lower(target) == string.lower(value) then
-						return target
-					end
+					if string.lower(target) == string.lower(value) then return target end
 				end
 
 				return value
 			end,
 			Parse = isDataType and registeredType.Parse or function (value)
 				return value
-			end
-        })
+			end,
+		})
 	end
 
 	if next(optional) then
@@ -167,6 +176,25 @@ end
 
 --[[
     @within Arguments
+    @function SearchLikeEnum
+	Used to search a list of options like an Enum type, where the elements are displayed closest
+	in order to the comparative value.
+
+	@param options: List<string>
+	@returns EnumSearch
+]]
+function Arguments.SearchLikeEnum (options: FlameTypes.List<string>): (value: string) -> FlameTypes.List<string>
+	return function (value)
+		local ordered = Util.tokensort(options, function (enumvalue: string)
+			return Util.cmatch(value, enumvalue)
+		end)
+
+		return ordered
+	end
+end
+
+--[[
+    @within Arguments
     @function Evaluator
 	Evaluates the validity of given type against the provided input and provides
 	a consensus and a hint list.
@@ -175,8 +203,16 @@ end
 	@param argumentInput: string
 	@returns (consensus: boolean, HintList: FlameTypes.Hint)
 ]]
-function Arguments.Evaluator (stringType: string, argumentInput: string?): (boolean, FlameTypes.Hint)
+function Arguments.Evaluator (
+	stringType: string,
+	argumentInput: string?,
+	searchTransformer: ((string) -> { string })?,
+	hintOnly: string?
+): (boolean, FlameTypes.Hint)
 	local registeredType = Arguments.Types[stringType]
+	if typeof(argumentInput) == 'string' then
+		argumentInput = Util.trim(argumentInput or '')
+	end
 
 	if not registeredType then
 		Error:setContext(('%s is not a registered type!'):format(stringType))
@@ -191,21 +227,16 @@ function Arguments.Evaluator (stringType: string, argumentInput: string?): (bool
 	local validateFunction = isDataType and type.Validate
 		or function (value: string)
 			local canIndex = typeof(value) == 'string'
-			if not canIndex then
-				return false
-			end
+			if not canIndex then return false end
 
 			for index, _ in pairs(type) do
-				if string.lower(index) == string.lower(value) then
-					return true
-				end
+				if string.lower(index) == string.lower(value) then return true end
 			end
 			return false
 		end
 
 	local isValid = validateFunction(argumentInput)
-
-	return isValid, isDataType and (type.Search and type.Search(argumentInput) or {}) or type
+	return isValid, searchTransformer and searchTransformer(hintOnly or argumentInput) or {}
 end
 
 --[[
@@ -217,7 +248,10 @@ end
 	@param evaluator: FlameTypes.DataType | FlameTypes.EnumType
 	@returns ArgumentType
 ]]
-function Arguments.Make(argumentName: string, argumentEvaluator: FlameTypes.DataType | FlameTypes.EnumType): FlameTypes.ArgumentType
+function Arguments.Make (
+	argumentName: string,
+	argumentEvaluator: FlameTypes.DataType | FlameTypes.EnumType
+): FlameTypes.ArgumentType
 	return function ()
 		return argumentName, argumentEvaluator
 	end
@@ -232,7 +266,7 @@ end
 	@param list: List<string>
 	@returns EnumType
 ]]
-function Arguments.MakeEnumType(name: string, list: FlameTypes.List<string>): FlameTypes.EnumType
+function Arguments.MakeEnumType (name: string, list: FlameTypes.List<string>): FlameTypes.EnumType
 	return makeEnum(name, list)
 end
 
@@ -244,7 +278,7 @@ end
 	@param holotype: DataType
 	@returns DataType
 ]]
-function Arguments.MakeDataType(holotype: FlameTypes.DataType): FlameTypes.DataType
+function Arguments.MakeDataType (holotype: FlameTypes.DataType): FlameTypes.DataType
 	-- Validate properties
 	assert(typeof(holotype) == 'table', 'Expected table for MakeDataType entry.')
 	assert(typeof(holotype.Parse) == 'function', 'Expected function for Parse got other.')
@@ -272,17 +306,22 @@ end
 
 	@param struct: ArgumentStruct
 	@param argumentName: string
-	@userInput: string?
+	@param userInput: string?
+	@param getHintableForListable: number?
 	@returns (boolean, Hint)
 ]]
 function Arguments.Seems (
 	struct: FlameTypes.ArgumentStruct,
-	argumentName: string,
-	userInput: string?
+	argumentIndex: number,
+	userInput: string?,
+	hintOnly: string?
 ): (boolean, FlameTypes.Hint)
-	if struct[argumentName] then return struct[argumentName](userInput) end
+	if struct[argumentIndex] then
+		local parsedInput = struct[argumentIndex].Parse(userInput or '')
+		return struct[argumentIndex].Evaluate(parsedInput, hintOnly)
+	end
 
-	return false
+	return false, {}
 end
 
 --[[
@@ -299,15 +338,14 @@ function Arguments.Dilute (
 	struct: FlameTypes.ArgumentStruct,
 	userInput: string?
 ): (boolean, FlameTypes.KeyList<string, FlameTypes.ArgumentContext>)
-    local argumentsSeemOK = true
+	local argumentsSeemOK = true
 	local contextMesh = {}
 
 	local parsedInputs = Util.parseArgs(userInput or '')
 	for index, structInner in pairs(struct) do
-		local input = structInner.Parse(parsedInputs[index])
-		if not structInner.Evaluate(input) then
-			argumentsSeemOK = false
-		end
+		local success, input = pcall(structInner.Parse, parsedInputs[index])
+		if not success then argumentsSeemOK = false break end
+		if not structInner.Evaluate(input) then argumentsSeemOK = false end
 
 		contextMesh[structInner.Name] = Arguments.Context(structInner.Name, structInner.Transform(input))
 	end
@@ -327,7 +365,7 @@ end
 function Arguments.Context (name: string, userInput: string?): FlameTypes.ArgumentContext
 	return {
 		Name = name,
-		Input = userInput
+		Input = userInput,
 	}
 end
 
