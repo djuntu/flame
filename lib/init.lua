@@ -57,7 +57,7 @@ return function <C>(userBuilderOptions: BuildTypes.FlameBuildConfig?): FlameType
 		_Flame.Middleware = {}
 
 		if runService:IsClient() then
-			require(Flame.Create.Gui)(_Flame)
+			_Flame.Gui = require(Flame.Create.Gui)(_Flame)
 		end
 
 		local UserView: C = View(_Flame)

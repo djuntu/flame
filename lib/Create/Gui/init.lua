@@ -19,7 +19,49 @@ local Gui: GuiTypes.CLIRegistry = {
 }
 Gui.__index = Gui
 
-function Gui:ExecuteAction (...) end
+function Gui:Communicate (communication: Types.ContextCommuniction)
+	local Handler: GuiTypes.InitializedCLIRegistry = self.Handler
+
+	if not communication then return end
+	if typeof(communication) == 'table' then
+		local lineStyle = communication.LineStyle or 'PlainText'
+		local color = communication.Color
+		local message = communication.Message
+		local headerText = communication.HeaderText
+		local imageId = communication.ImageId
+		if typeof(color) == 'string' then
+			color = color == 'Green' and Color3.fromRGB(26, 255, 0)
+				or color == 'Red' and Color3.fromRGB(255, 0, 72)
+				or Color3.new(1, 1, 1)
+		elseif typeof(color) ~= 'Color3' then
+			color = Color3.new(1, 1, 1)
+		end
+
+		if typeof(lineStyle) ~= 'string' then
+			lineStyle = 'PlainText'
+		else
+			if lineStyle ~= 'PlainText' and lineStyle ~= 'Expressive' and lineStyle ~= 'Header' then
+				lineStyle = 'PlainText'
+			end
+		end
+
+		if typeof(message) ~= 'string' then message = '[Invalid format provided]' end
+
+		if lineStyle == 'Header' then
+			if typeof(headerText) ~= 'string' then headerText = '[Invalid header provided]' end
+		end
+
+		if lineStyle == 'Expressive' then
+			if typeof(imageId) ~= 'string' then
+				warn('[Communication error] ImageId expects a string in format rbxassetid://xxxxxxxxx')
+				imageId = ''
+			end
+		end
+		Handler.Window:WriteLine(message, lineStyle, color, headerText, imageId)
+	elseif typeof(communication) == 'string' then
+		Handler.Window:WriteLine(communication)
+	end
+end
 
 function Gui.create ()
 	local self = setmetatable(Gui, Gui)
@@ -28,11 +70,20 @@ function Gui.create ()
 	self.Events = Events(self.Handler) :: GuiTypes.Events
 	self.Toggled = false
 
+	self.Navigation = {
+		[Enum.KeyCode.Up] = 'Up',
+		[Enum.KeyCode.Down] = 'Down',
+	}
+
 	-- Hook main events
 	UserInputService.InputBegan:Connect(function (input)
 		if table.find(self.Flame.Props.EntryPoints, input.KeyCode) then
 			self.Toggled = not self.Toggled
 			self.Handler.Window:Toggle(self.Toggled)
+		elseif self.Navigation[input.KeyCode] then
+			self.Handler.Autocomplete:CycleInput(self.Navigation[input.KeyCode], self.Handler.UserInput)
+		elseif input.KeyCode == Enum.KeyCode.Tab then
+			self.Handler.Autocomplete:Autocomplete()
 		end
 	end)
 
@@ -45,9 +96,22 @@ function Gui.create ()
 		end
 	end
 
-	self.Flame.Props.ContextCommunicator.OnClientEvent:Connect(function (...)
-		self:ExecuteAction(...)
+	local TextBox = self.Handler.Window.Writer.Object.TextBox
+	TextBox.FocusLost:Connect(function (enterPressed)
+		self.Handler.Window:FocusLost(enterPressed)
 	end)
+
+	TextBox:GetPropertyChangedSignal('Text'):Connect(function ()
+		self.Handler.Window:GoToFocus()
+		if TextBox.Text:gmatch('\t') then
+			TextBox.Text = TextBox.Text:gsub('\t', '')
+		end
+		if self.Handler.OnTextChanged then self.Handler.OnTextChanged(TextBox.Text) end
+	end)
+
+	self.Flame.Props.ContextCommunicator.OnClientInvoke = function (communication: Types.ContextCommuniction)
+		self:Communicate(communication)
+	end
 
 	return self
 end

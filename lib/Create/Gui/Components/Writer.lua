@@ -15,21 +15,24 @@ end
 
 function Writer:SetContent (text: string)
 	self.Object:FindFirstChild('TextBox').Text = text
+	return self
 end
 
 function Writer:SetContentColor(color: Color3)
     self.Object:FindFirstChild('TextBox').TextColor3 = color
+	return self
 end
 
 function Writer:SetHeader (text: string)
 	self.Object:FindFirstChild('TextLabel').Text = text
+	return self
 end
 
 function Writer:Create (parent: GuiObject)
 	local Frame = Instance.new('Frame')
 	Frame.Name = 'Writer'
 	Frame.BackgroundTransparency = 1
-	Frame.Size = UDim2.new(UDim.new(1, 0), UDim.new(0, 20))
+	Frame.Size = UDim2.new(UDim.new(0.95, 0), UDim.new(0, 30))
 
 	local Content = Instance.new('TextBox')
 	Content.TextEditable = true
@@ -39,7 +42,7 @@ function Writer:Create (parent: GuiObject)
 	Content.BackgroundTransparency = 1
 	Content.ClearTextOnFocus = false
 	Content.Interactable = true
-	Content.Size = UDim2.new(UDim.new(1, 0), UDim.new(0, 20))
+	Content.Size = UDim2.new(UDim.new(1, 0), UDim.new(0, 30))
 	Content.FontFace = Font.fromEnum(Enum.Font.RobotoMono)
 	Content.TextColor3 = Color3.new(1, 1, 1)
 	Content.TextWrapped = true
@@ -55,7 +58,7 @@ function Writer:Create (parent: GuiObject)
 	User.TextColor3 = HEADER_TEXT_COLOR_3
 	User.TextXAlignment = Enum.TextXAlignment.Left
 	User.TextSize = 18
-	User.Size = UDim2.fromOffset(0, 20)
+	User.Size = UDim2.fromOffset(0, 30)
 	User.AutomaticSize = Enum.AutomaticSize.X
 	User.Parent = Frame
 
