@@ -322,6 +322,17 @@ end
 
 --[[
     @within Registry
+    @function GetCommands
+    Returns a list of registered commands.
+
+    @returns KeyList<string, Command>
+]]
+function Registry:GetCommands(): FlameTypes.KeyList<string, FlameTypes.Command>
+    return self.Commands
+end
+
+--[[
+    @within Registry
     @private function GetCommand
     Extract a command from the Registry.
 
