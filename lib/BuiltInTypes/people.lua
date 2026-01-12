@@ -24,6 +24,10 @@ return function (argument: Types.Arguments)
         end,
         Transform = function(value: any)
             return value
+        end,
+        Search = function(value: string)
+            local names = argument.Inherit('Names')
+            return argument.SearchLikeEnum(names)(value)
         end
     })
 end
