@@ -38,7 +38,7 @@ function NetBuilder:__call <R>(
 	assert(dispatcher, 'Expected Dispatcher name got nil.')
 
 	local instanceNetworkRoot = networkRoot or create('Folder', 'Net', lib)
-	return oneWayCommunicator and create('RemoteEvent', oneWayCommunicator, instanceNetworkRoot),
+	return oneWayCommunicator and create('RemoteFunction', oneWayCommunicator, instanceNetworkRoot),
 		create('RemoteFunction', dispatcher, instanceNetworkRoot),
 		networkRoot
 end
