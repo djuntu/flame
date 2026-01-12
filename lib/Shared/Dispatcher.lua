@@ -52,6 +52,14 @@ function Dispatcher.Provide (
 		IsRobot = not executor,
 		RawText = rawText,
 		RawArgs = rawArgs,
+
+		Reply = function(_, communication: FlameTypes.ContextCommuniction)
+			if runService:IsClient() then
+				self.Flame.Gui:Communicate(communication)
+			else
+				self.Flame.Props.ContextCommunicator:InvokeClient(executor, communication)
+			end
+		end
 	}
 
 	local commandContext = Command.stackCommandContext(dispatchContext, Command.makeContext(command))
@@ -214,10 +222,23 @@ function Dispatcher.Execute (
 	end
 
 	local success, commandResponse = pcall(executor.Executor, commandContext)
-	if not success then return commandResponse end
+	if not success then return {
+		Success = false,
+		UserResponse = commandResponse,
+	} end
 
-	if self.Flame.Props.DoNotAnnounceRunner then return end
-	return commandResponse or 'Command executed successfully.'
+	if self.Flame.Props.DoNotAnnounceRunner then return true end
+	if commandResponse and typeof(commandResponse) ~= 'table' then
+		commandResponse = {
+			Success = true,
+			UserResponse = (commandResponse and typeof(commandResponse) == 'string' and commandResponse)
+				or 'Command executed successfully.',
+		}
+	end
+	return commandResponse or {
+		Success = true,
+		UserResponse = 'Command executed successfully.',
+	}
 end
 
 return function (self: FlameTypes._Flame): FlameTypes.Dispatcher
