@@ -67,7 +67,7 @@ function BUILD:__call (buildConfig: BuildTypes.FlameBuildConfig)
 			if not next(entryPoints) then entryPoints = { Enum.KeyCode.F2 } end
 
 			return {
-				ContextCommunicator = netRoot:FindFirstChild('ContexComm'),
+				ContextCommunicator = netRoot:FindFirstChild('ContextComm'),
 				DispatcherReceiver = netRoot:FindFirstChild('Dispatcher'),
 				DoNotAnnounceRunner = buildConfig.DoNotAnnounceRunner,
 				EntryPoints = entryPoints,
