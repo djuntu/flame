@@ -1,6 +1,7 @@
 local UserInputService = game:GetService("UserInputService")
 local BuildTypes = require(script.Parent.BuildTypes)
 local ErrorTypes = require(script.Parent.ErrorTypes)
+local GuiTypes = require(script.Parent.Parent.Create.Gui.Types)
 
 export type Dictionary<T> = {[T]: boolean}
 export type KeyList<K, V> = {[K]: V}
@@ -29,6 +30,7 @@ export type Registry = {
     EvaluateAndFlushBacklog: (self: Registry) -> nil,
     MarkCommandExecutionBuffer: (self: Registry, executionMarker: ExecutionState) -> nil,
     Get: (self: Registry, target: string, scope: string) -> (Command | Middleware)?,
+    GetCommands: (self: Registry) -> KeyList<string, Command>,
     GetCommand: (self: Registry, commandName: string) -> Command?,
     GetSubcommands: (self: Registry, command: Command) -> List<Subcommand>,
     GetMdwr: (self: Registry, command: Command, middleware: MdwrType) -> Middleware?,
@@ -48,6 +50,7 @@ export type MdwrType = 'BeforeExecution' | 'AfterExecution'
 export type Scope = 'Command' | 'Hook'
 
 export type State = {}
+export type ContextCommuniction = GuiTypes.ContextCommuniction
 export type DispatchContext = {
     Executor: Player?,
     IsRobot: boolean,
@@ -55,6 +58,7 @@ export type DispatchContext = {
     RawArgs: string,
     Arguments: KeyList<string, ArgumentContext>,
     GetArgument: (self: DispatchContext, arg: string) -> string,
+    Reply: (self: DispatchContext, communication: GuiTypes.ContextCommuniction) -> nil
 }
 export type ExecutionContext = {
     Name: string,
@@ -117,7 +121,10 @@ export type CommandProps = {
 }
 
 export type Util = {}
-export type CommandExecutionResponse = string?
+export type CommandExecutionResponse = {
+    Success: boolean,
+    UserResponse: string,
+}
 export type Dispatcher = {
     Flame: _Flame,
 
@@ -136,6 +143,8 @@ export type _Flame = {
     Dispatcher: Dispatcher,
     Registry: Registry,
 
+    Gui: GuiTypes.CLIRegistry,
+
     Middleware: {
         BeforeExecution: Middleware?,
         AfterExecution: Middleware?,
@@ -143,13 +152,14 @@ export type _Flame = {
 }
 
 export type Hint = List<string>
+export type EnumSearch = (string) -> List<string>
 export type Arguments = {
     Types: TypeRegistry,
 
     StructHasArgument: (struct: ArgumentStruct, name: string) -> number | boolean?,
     Struct: (givenArguments: GivenArguments) -> ArgumentContext,
-    Evaluator: (stringType: string, argumentInput: string?) -> (boolean, Hint),
-    Seems: (struct: ArgumentStruct, argumentName: string, userInput: string?) -> boolean,
+    Evaluator: (stringType: string, argumentInput: string?, searchTransformer: ((string) -> List<string>)?, hintOnly: string?) -> (boolean, Hint),
+    Seems: (struct: ArgumentStruct, argumentIndex: number, userInput: string?, hintOnly: string?) -> boolean,
     Dilute: (struct: ArgumentStruct, userInput: string?) -> (boolean, KeyList<string, ArgumentContext>),
     Context: (name: string, userInput: string?) -> ArgumentContext,
     Register: () -> (),
@@ -157,6 +167,7 @@ export type Arguments = {
     Make: (argumentName: string, argumentEvaluator: DataType | EnumType) -> (() -> (string, DataType | EnumType)),
     MakeEnumType: (name: string, list: List<string>) -> EnumType,
     MakeDataType: (entry: DataType?) -> DataType,
+    SearchLikeEnum: (options: List<string>) -> EnumSearch,
     typeOf: (t: DataType | EnumType) -> string
 }
 export type DataType = {
@@ -168,7 +179,10 @@ export type DataType = {
 export type ArgumentStruct = {
     [number]: {
         Name: string,
-        Evaluate: (input: string) -> (boolean, List<string>),
+        Type: string,
+        Description: string?,
+        Optional: boolean,
+        Evaluate: (input: string, hintOnly: string?) -> (boolean, List<string>),
         Transform: (value: any?) -> any?,
         Parse: (value: string) -> any?,
         Search: ((value: string) -> List<string>)?,

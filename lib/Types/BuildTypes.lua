@@ -4,12 +4,12 @@ export type FlameBuildConfig = {
 }
 
 export type ServerBuildProps = {
-	ContextCommunicator: RemoteEvent?,
+	ContextCommunicator: RemoteFunction,
 	DispatcherReceiver: RemoteFunction,
 	DoNotAnnounceRunner: boolean?,
 }
 export type ClientBuildProps = {
-	ContextCommunicator: RemoteEvent?,
+	ContextCommunicator: RemoteFunction,
 	DispatcherReceiver: RemoteFunction,
 	DoNotAnnounceRunner: boolean?,
 	EntryPoints: { Enum.KeyCode | BindableEvent },
