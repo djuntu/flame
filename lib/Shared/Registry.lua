@@ -167,7 +167,7 @@ function Registry.Register (self: FlameTypes.Registry, command: FlameTypes.Comma
 				return
 			end
 
-			if self:VerifyCommandMiddleware(middleware) then
+			if not self:VerifyCommandMiddleware(middleware) then
 				_middlewareException = mdwr
 				break
 			end
@@ -182,6 +182,7 @@ function Registry.Register (self: FlameTypes.Registry, command: FlameTypes.Comma
 					)
 				)
 				:recommend('Middleware must be a function!')
+				:say()
 			return
 		end
 	end
@@ -235,6 +236,12 @@ end
     @returns boolean
 ]]
 function Registry.VerifyCommandMiddleware (self: FlameTypes.Registry, middleware: FlameTypes.Middleware?): boolean
+	local bfExecution, afExecution = middleware.BeforeExecution, middleware.AfterExecution
+
+	if bfExecution and typeof(bfExecution) ~= 'function' then return false end
+
+	if afExecution and typeof(afExecution) ~= 'function' then return false end
+
 	return true
 end
 
@@ -374,7 +381,9 @@ function Registry.GetMdwr (
 	command: FlameTypes.Command,
 	middleware: FlameTypes.MdwrType
 ): FlameTypes.Middleware?
-	return command.Middleware and command.Middleware[middleware]
+	if command.Middleware and typeof(command.Middleware) == 'table' then
+        return command.Middleware[middleware] and command.Middleware[middleware][middleware]
+    end
 end
 
 --[[
