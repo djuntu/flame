@@ -111,6 +111,9 @@ return function (Main)
 		local textBox: TextBox = Initializer.Window.Writer.Object.TextBox
 		local cursorPosition = textBox.CursorPosition
 
+		if string.find(targetInput, ' ') then
+			targetInput = `'{targetInput}'`
+		end
 		textBox.Text = Util.targettedSubstringReplace(textBox.Text, cursorPosition, Initializer.UserInput, targetInput)
 			.. ' '
 		Initializer.OnTextChanged(textBox.Text)
