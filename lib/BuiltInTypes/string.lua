@@ -1,3 +1,4 @@
+-- Native string type on the Roblox Luau engine.
 local Types = require(script.Parent.Parent.Types.FlameTypes)
 return function (argument: Types.Arguments)
     return argument.Make('string', argument.MakeDataType {
