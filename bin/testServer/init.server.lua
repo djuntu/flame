@@ -7,4 +7,4 @@ local lib: flameTypes.FlameMain<buildTypes.ServerBuildProps> = require(game.Repl
 }
 :addMiddleware(script.BeforeExecution)
 
-print(lib.Dispatcher:EvaluateAndRun(nil, 'test *'))
+--print(lib.Dispatcher:EvaluateAndRun(nil, 'test *'))

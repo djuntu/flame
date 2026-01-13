@@ -1,6 +1,6 @@
 local Types = require(script.Parent.Parent.Types.FlameTypes)
 return function (argument: Types.Arguments)
-    return argument.Make('People', argument.MakeDataType {
+    return argument.Make('People', argument.MakeListableType {
         Parse = function(value: string)
             local names = argument.Inherit('Names')
             if value == '*' then

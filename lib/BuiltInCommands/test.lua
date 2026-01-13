@@ -40,9 +40,35 @@ end)
 CommandBuilder.Secondary {
     Hoist = Command,
     Realm = 'Client',
-    Name = 'subcommand'
+    Name = 'greeting',
+    Arguments = {
+        {
+            Type = 'Names',
+            Name = 'Name',
+            Description = 'This is a test description',
+            Optional = true,
+        },
+    }
 } (function(context)
     print(context)
+    context:Reply('Hello ' .. (context:GetArgument('Name') or 'World') )
+end)
+
+CommandBuilder.Secondary {
+    Hoist = Command,
+    Realm = 'Client',
+    Name = 'greeting2',
+    Arguments = {
+        {
+            Type = 'string',
+            Name = 'Name',
+            Description = 'This is a test description',
+            Optional = true,
+        },
+    }
+} (function(context)
+    print(context)
+    context:Reply('Hello ' .. (context:GetArgument('Name') or 'World') )
 end)
 
 return Command
