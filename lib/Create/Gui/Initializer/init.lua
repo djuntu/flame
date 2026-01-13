@@ -95,6 +95,14 @@ return function (Main)
 				nil,
 				success and 'rbxassetid://81345199294878' or 'rbxassetid://130930319386024'
 			)
+		else
+			Window:WriteLine(
+				serverResponse,
+				'Expressive',
+				Color3.fromRGB(255, 0, 72),
+				nil,
+				'rbxassetid://130930319386024'
+			)
 		end
 		Initializer.WaitingOnDispatchResponse = false
 	end
@@ -140,6 +148,19 @@ return function (Main)
 				autoCompleteOptions = Util.filterKeys(commands, function (key)
 					return Util.startsWith(key, string.lower(text))
 				end)
+
+				-- We don't display alias options as default.
+				if text ~= '' then
+					for _, command: FlameTypes.Command in pairs(commands) do
+						if command.Aliases and next(command.Aliases) then
+							for _, alias in pairs(command.Aliases) do
+								if Util.startsWith(alias, string.lower(text)) then
+									table.insert(autoCompleteOptions, alias)
+								end
+							end
+						end
+					end
+				end
 
 				local commandObject = Flame.Registry:Get(commandName, 'Command')
 				if not commandObject then

@@ -7,6 +7,8 @@ export type Dictionary<T> = { [T]: boolean }
 export type KeyList<K, V> = { [K]: V }
 export type List<T> = { T }
 
+export type IconName = 'Success' | 'Failure'
+
 export type Registry = {
 	ObjectProps: Dictionary<string>,
 	CommandArguments: Dictionary<string>,
@@ -31,7 +33,7 @@ export type Registry = {
 	MarkCommandExecutionBuffer: (self: Registry, executionMarker: ExecutionState) -> nil,
 	Get: (self: Registry, target: string, scope: string) -> (Command | Middleware)?,
 	GetCommands: (self: Registry) -> KeyList<string, Command>,
-	GetCommand: (self: Registry, commandName: string) -> Command?,
+	GetCommand: (self: Registry, commandName: string) -> (Command?, boolean?),
 	GetSubcommands: (self: Registry, command: Command) -> List<Subcommand>,
 	GetMdwr: (self: Registry, command: Command, middleware: MdwrType) -> Middleware?,
 
@@ -67,6 +69,7 @@ export type ExecutionContext = {
 
 	GetStore: (self: ExecutionContext) -> CommandStore,
 	GetState: (self: ExecutionContext) -> State,
+	GetIcon: (self: ExecutionContext, iconName: string) -> IconName,
 }
 export type CommandContext = DispatchContext & ExecutionContext
 export type CommandStore = { [string]: Executable }

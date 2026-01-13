@@ -79,6 +79,20 @@ function Window:SetProcessableEntry (bool: boolean, canProcessResponse: string?)
 end
 
 --[[
+	@method CaptureFocus
+	@within Window
+	Captures on the input itself.
+
+	@public
+	@returns void
+]]
+function Window:CaptureFocus ()
+	local writer = self.Writer
+	local textBox = writer.Object.TextBox
+	textBox:CaptureFocus()
+end
+
+--[[
 	@method Focus
 	@within Window
 	Focuses the CLI window input box.
@@ -88,11 +102,10 @@ end
 	@returns void
 ]]
 function Window:Focus (textIsCleared: boolean?)
+	if textIsCleared then return end
+
 	local writer = self.Writer
 	local textBox = writer.Object.TextBox
-
-	textBox:CaptureFocus()
-	if textIsCleared then return end
 	textBox.CursorPosition = #textBox.Text + 1
 end
 
@@ -126,6 +139,46 @@ function Window:GoToFocus ()
 end
 
 --[[
+	@method SetEditable
+	@within Window
+	Sets whether the Window can be edited or not.
+	Directly linked to :Toggle
+
+	@public
+	@param toggle: boolean
+	@returns void
+]]
+function Window:SetEditable (toggle: boolean)
+	local textBox: TextBox = self.Writer.Object.TextBox
+	textBox.TextEditable = toggle
+end
+
+--[[
+	@method Unfocus
+	@within Window
+	Loses focus without triggering internal commands
+
+	@public
+	@returns void
+]]
+function Window:Unfocus ()
+	local textBox: TextBox = self.Writer.Object.TextBox
+	textBox:ReleaseFocus()
+end
+
+--[[
+	@method IsToggled
+	@within Window
+	Gets whether the window is toggled or not.
+
+	@public
+	@returns boolean
+]]
+function Window:IsToggled()
+	return self.Main.Main.Toggled
+end
+
+--[[
 	@method FocusLost
 	@within Window
 	Handles when the CLI window input box loses focus.
@@ -140,7 +193,6 @@ function Window:FocusLost (enterPressed: boolean)
 	textBox.Text = Util.trim(textBox.Text)
 
 	self:GoToFocus()
-
 	if enterPressed then
 		local commandEntry = textBox.Text
 		local willBeProcessed = self.CanProcess
@@ -151,7 +203,12 @@ function Window:FocusLost (enterPressed: boolean)
 			self:GoToFocus()
 		end
 		self:Focus(willBeProcessed)
+		self:CaptureFocus()
 	else
+		-- Prevents infinite editing loop (we're not editing if the CLI is closed.)
+		if not self:IsToggled() then
+			return
+		end
 		self:Focus(false)
 	end
 end
@@ -167,12 +224,26 @@ end
 ]]
 function Window:Toggle (toggle: boolean)
 	local scrollingFrame = self.Main.Gui.Window
+	self:SetEditable(toggle)
 	if toggle then
 		Util.adjustConsoleSize(scrollingFrame, 30, 300, true)
+
 		self:Focus()
 		self:GoToFocus()
+		self:CaptureFocus()
+		self.Main.Gui.Enabled = true
 	else
 		Util.fadeOutConsole(scrollingFrame)
+
+		self:Unfocus()
+
+		-- This is terrible logic and needs to be changed in second release.
+		task.delay(0.25, function()
+			if self:IsToggled() then
+				return
+			end
+			self.Main.Gui.Enabled = false
+		end)
 	end
 end
 

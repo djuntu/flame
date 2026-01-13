@@ -336,6 +336,19 @@ function Util.parseArgs (str: string)
 end
 
 --[[
+	Returns whether each value of a list satisfies the predicate function.
+]]
+function Util.every(list: FlameTypes.List<any>, predicate: (any) -> boolean)
+	for _, item in pairs(list) do
+		if not predicate(item) then
+			return false
+		end
+	end
+
+	return true
+end
+
+--[[
 	Assigns a strength token to each value based on the comparative assessment and then
 	resorts the table.
 ]]

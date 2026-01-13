@@ -139,12 +139,13 @@ function Dispatcher.EvaluateAndRunAsParsed (
 )
 	local command: FlameTypes.Command = self.Flame.Registry:Get(commandName, 'Command')
 
-	if not command then return string.format(UNKNOWN_COMMAND, commandName) end
-	if not command:extract(commandEntryPoint) then return string.format(UNKNOWN_COMMAND_ENTRY, commandEntryPoint) end
+	if not command then print('yeah nah') return string.format(UNKNOWN_COMMAND, commandName) end
+	if not command:extract(commandEntryPoint) then print('salaam') return string.format(UNKNOWN_COMMAND_ENTRY, commandEntryPoint) end
 
 	local canRun, commandContext =
 		self:Evaluate(executor, command, command:extract(commandEntryPoint), rawArgs, rawText)
 	if canRun then return self:Execute(command, commandEntryPoint, commandContext) end
+	return 'Error evaluating command execution.'
 end
 
 --[[

@@ -377,6 +377,13 @@ function Arguments.Dilute (
 
 	local parsedInputs = Util.parseArgs(userInput or '')
 	for index, structInner in pairs(struct) do
+		if structInner.Optional and not parsedInputs[index] then
+			-- If it's optional then we don't need to evaluate null.
+			-- We still allow users to include custom behaviors for null inputs however and
+			-- so we can transform it.
+			contextMesh[structInner.Name] = Arguments.Context(structInner.Name, structInner.Transform())
+			continue
+		end
 		local success, input = pcall(structInner.Parse, parsedInputs[index])
 		if not success then
 			argumentsSeemOK = false

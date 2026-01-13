@@ -203,8 +203,8 @@ end
     @returns void
 ]]
 function Registry.RegisterCommand (self: FlameTypes.Registry, command: FlameTypes.Command)
-	local object = Command.new(command)
-	self.Commands[command.Name] = object
+	local object, name = Command.new(command)
+	self.Commands[name] = object
 end
 
 --[[
@@ -340,9 +340,9 @@ end
     Use :Get instead.
 
     @param commandName: string
-    @returns Command?
+    @returns Command?, isAliasOfCommand: boolean?
 ]]
-function Registry.GetCommand (self: FlameTypes.Registry, commandName: string): FlameTypes.Command?
+function Registry.GetCommand (self: FlameTypes.Registry, commandName: string): (FlameTypes.Command?, boolean?)
 	commandName = string.lower(commandName)
 	local existsByExactReference = self.Commands[commandName]
 	if existsByExactReference then return existsByExactReference end
@@ -354,7 +354,7 @@ function Registry.GetCommand (self: FlameTypes.Registry, commandName: string): F
 			and next(command.Aliases)
 			and table.find(command.Aliases, commandName)
 		then
-			return command
+			return command, true
 		end
 	end
 end

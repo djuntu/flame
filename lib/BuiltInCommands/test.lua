@@ -40,35 +40,66 @@ end)
 CommandBuilder.Secondary {
     Hoist = Command,
     Realm = 'Client',
-    Name = 'greeting',
+    Name = 'friends',
     Arguments = {
         {
-            Type = 'Names',
-            Name = 'Name',
-            Description = 'This is a test description',
+            Type = 'strings',
+            Name = 'Friends',
+            Description = 'What friends do you have?',
             Optional = true,
         },
     }
 } (function(context)
-    print(context)
-    context:Reply('Hello ' .. (context:GetArgument('Name') or 'World') )
+    local myFriends = context:GetArgument('Friends')
+    if #myFriends == 0 then
+        context:Reply('You have no friends!')
+    else
+        context:Reply('Your friends are: ' .. table.concat(myFriends, ', '))
+    end
 end)
 
 CommandBuilder.Secondary {
     Hoist = Command,
     Realm = 'Client',
-    Name = 'greeting2',
+    Name = 'add',
     Arguments = {
         {
-            Type = 'string',
-            Name = 'Name',
-            Description = 'This is a test description',
-            Optional = true,
+            Type = 'number',
+            Name = 'number1',
+            Description = 'First number',
+            Optional = false,
+        },
+        {
+            Type = 'number',
+            Name = 'number2',
+            Description = 'Second number',
+            Optional = false,
         },
     }
 } (function(context)
-    print(context)
-    context:Reply('Hello ' .. (context:GetArgument('Name') or 'World') )
+    local num1, num2 = context:GetArgument('number1'), context:GetArgument('number2')
+    context:Reply('The sum is ' .. tostring(num1 + num2))
+end)
+
+CommandBuilder.Secondary {
+    Hoist = Command,
+    Realm = 'Client',
+    Name = 'color',
+    Arguments = {
+        {
+            Type = 'color3',
+            Name = 'messageColor',
+            Description = 'What color should the CommandExecutionResponse be?',
+            Optional = false,
+        },
+    }
+} (function(context)
+    local color: Color3 = context:GetArgument('messageColor')
+    context:Reply({
+        Message = 'This is your chosen color!',
+        Color = color,
+        LineStyle = 'PlainText'
+    })
 end)
 
 return Command

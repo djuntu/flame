@@ -26,6 +26,10 @@ export type Window = {
 	Focus: (self: Window) -> (),
 	GoToFocus: (self: Window) -> (),
 	FocusLost: (self: Window, enterPressed: boolean) -> boolean,
+	Unfocus: (self: Window) -> nil,
+	CaptureFocus: (self: Window) -> nil,
+	IsToggled: (self: Window) -> boolean,
+	SetEditable: (self: Window, toggle: boolean) -> nil,
 	WriteLine: (
 		self: Window,
 		text: string,
@@ -41,7 +45,7 @@ export type Window = {
 export type ContextCommuniction = string | {
 	Message: string,
 	LineStyle: 'PlainText' | 'Expressive' | 'Header',
-	ImageId: string?,
+	Expression: string?,
 	HeaderText: string?,
 	Color: Color3?,
 }

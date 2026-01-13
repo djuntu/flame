@@ -70,7 +70,7 @@ function Gui:Communicate (communication: Types.ContextCommuniction)
 		local color = communication.Color
 		local message = communication.Message
 		local headerText = communication.HeaderText
-		local imageId = communication.ImageId
+		local imageId = communication.Expression
 		if typeof(color) == 'string' then
 			color = color == 'Green' and Color3.fromRGB(26, 255, 0)
 				or color == 'Red' and Color3.fromRGB(255, 0, 72)
@@ -131,8 +131,14 @@ function Gui.create ()
 			self.Toggled = not self.Toggled
 			self.Handler.Window:Toggle(self.Toggled)
 		elseif self.Navigation[input.KeyCode] then
+			if not self.Toggled then
+				return
+			end
 			self.Handler.Autocomplete:CycleInput(self.Navigation[input.KeyCode], self.Handler.UserInput)
 		elseif input.KeyCode == Enum.KeyCode.Tab then
+			if not self.Toggled then
+				return
+			end
 			self.Handler.Autocomplete:Autocomplete()
 		end
 	end)

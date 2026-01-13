@@ -30,7 +30,7 @@ local Command = {
 Command.prototype.__index = Command
 Command.prototype = setmetatable({}, Command.prototype)
 
-function Command.new (command: FlameTypes.CommandProps): FlameTypes.Command
+function Command.new (command: FlameTypes.CommandProps): (FlameTypes.Command, string)
 	local aliases = Command.formatAliases(command.Aliases)
 	local CommandHologram = {
 		Name = Command.formatName(command.Name),
@@ -57,7 +57,7 @@ function Command.new (command: FlameTypes.CommandProps): FlameTypes.Command
 		return self.Store[subcommand]
 	end
 
-	return setmetatable(CommandHologram, CommandHologram)
+	return setmetatable(CommandHologram, CommandHologram), CommandHologram.Name
 end
 
 --[[
@@ -100,6 +100,15 @@ function Command.makeContext <State>(commandHologram: FlameTypes.Command): Flame
 		end,
 		GetState = function (self: FlameTypes.ExecutionContext): FlameTypes.State
 			return commandHologram.State
+		end,
+		GetIcon = function (self: FlameTypes.ExecutionContext, iconName: FlameTypes.IconName): string
+			-- This needs to be shared in a configuration module with the client down the line
+			local icons = {
+				['Success'] = 'rbxassetid://81345199294878',
+				['Failure'] = 'rbxassetid://130930319386024',
+			}
+
+			return iconName and (icons[iconName] or '') or ''
 		end,
 	}
 end
@@ -221,11 +230,14 @@ end
 ]]
 function Command.formatAliases (aliases: { string }?)
 	if aliases and typeof(aliases) == 'table' and next(aliases) then
-		Util.map(aliases, function (alias: string)
+		Util.map(aliases, function (key: number)
+			local alias = aliases[key]
 			if typeof(alias) ~= 'string' then return nil end
 
 			return Command.formatName(alias)
 		end)
+
+		return aliases
 	end
 end
 
