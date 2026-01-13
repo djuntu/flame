@@ -38,6 +38,7 @@ function Command.new (command: FlameTypes.CommandProps): (FlameTypes.Command, st
 		Group = command.Group,
 		Store = {},
 		State = {},
+		Middleware = command.Middleware,
 		__newindex = function (self, k, v) end,
 	}
 	local _contextUsesState = rawget(command, 'New') and typeof(rawget(command, 'New')) == 'function'
