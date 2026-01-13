@@ -50,7 +50,7 @@ function BUILD:__call (buildConfig: BuildTypes.FlameBuildConfig)
 			local entryPoints = {}
 			if buildConfig.EntryPoints and typeof(buildConfig.EntryPoints) == 'table' then
 				for _, point: Instance | Enum in pairs(buildConfig.EntryPoints) do
-					if typeof(point) ~= 'Enum' and typeof(point) ~= 'Instance' then
+					if typeof(point) ~= 'EnumItem' and typeof(point) ~= 'Instance' then
 						warn(`{point} is not an appropriate entry point.`)
 						continue
 					end
