@@ -105,7 +105,7 @@ return function (Main)
 
 		textBox.Text = Util.targettedSubstringReplace(textBox.Text, cursorPosition, Initializer.UserInput, targetInput)
 			.. ' '
-
+		Initializer.OnTextChanged(textBox.Text)
 		Window:Focus()
 	end
 
@@ -141,7 +141,8 @@ return function (Main)
 					return Util.startsWith(key, string.lower(text))
 				end)
 
-				if not Flame.Registry:Get(text, 'Command') then
+				local commandObject = Flame.Registry:Get(commandName, 'Command')
+				if not commandObject then
 					Window:SetProcessableEntry(
 						false,
 						string.format('%s is not a valid command. Type help to view a list of commands.', text)
@@ -150,7 +151,15 @@ return function (Main)
 					return
 				end
 
-				local subCommand = Flame.Registry:Get(text, 'Command'):extract(commandEntryPoint)
+				if commandEntryPoint ~= 'Primary' then
+					autoCompleteOptions = Util.filterMap(commandObject.Store, function (key, value)
+						return commandName .. '/' .. key
+					end, function(key, value)
+						return Util.startsWith(key, string.lower(commandEntryPoint)) and key ~= 'Primary'
+					end)
+				end
+
+				local subCommand = commandObject:extract(commandEntryPoint)
 				if not subCommand then
 					Window:SetProcessableEntry(
 						false,
@@ -236,8 +245,9 @@ return function (Main)
 					return
 				end
 
+				local argumentWillBeIgnored = rawArgs:match('^%s*$') ~= nil
 				local isArgumentOutofBounds = subCommand.ArgumentStruct[argumentIndex] == nil
-				if isArgumentOutofBounds then
+				if isArgumentOutofBounds and not argumentWillBeIgnored then
 					Window:SetProcessableEntry(
 						false,
 						string.format(
@@ -249,10 +259,16 @@ return function (Main)
 					return
 				end
 
+				if #subCommand.ArgumentStruct == 0 then
+					autoCompleteOptions = {}
+					Window:SetProcessableEntry(true)
+					return
+				end
+
 				local structItem = subCommand.ArgumentStruct[argumentIndex]
 				Initializer.UserArgument = structItem
-				local input = parsed[argumentIndex] or ''
-				local isListableEntry = string.find(input, ',') and true or false
+				local input = parsed[argumentIndex] or rawArgs
+				local isListableEntry = string.find(input, ',') and structItem.IsListableType and true or false
 
 				local isOK, hintList = Arguments.Seems(
 					subCommand.ArgumentStruct,
@@ -265,6 +281,14 @@ return function (Main)
 					Initializer.UserInput = Util.getListItemFromCharIndex(input, cursorPosition)
 				else
 					Initializer.UserInput = input
+				end
+
+				-- A DataType will never have any options there exists no given list of preset options.
+				-- Therefore we set the first option to be a blank table (skippable entry)
+				-- so the autocomplete still shows but with no options.
+				local isDataType = structItem.IsDataType
+				if isDataType then
+					hintList = {{}}
 				end
 				autoCompleteOptions = hintList
 				if not isOK then
@@ -289,10 +313,16 @@ return function (Main)
 
 		evaluateAutocomplete()
 		if next(autoCompleteOptions) then
+			local isSkippableEntry = typeof(autoCompleteOptions[1]) == 'table'
 			Autocomplete:Visible(true)
-			Autocomplete:DisplayOptions(autoCompleteOptions)
-			Autocomplete:SetPosition(Initializer.GetEntryPosition())
-			Autocomplete:Select(1, Initializer.UserInput)
+
+			if not isSkippableEntry then
+				Autocomplete:DisplayOptions(autoCompleteOptions)
+				Autocomplete:SetPosition(Initializer.GetEntryPosition())
+				Autocomplete:Select(1, Initializer.UserInput)
+			else
+				Autocomplete:DisplayOptions {}
+			end
 
 			if not isEnteringArguments or not Initializer.UserArgument then
 				Autocomplete:SetContext('command', 'Command', 'The name of the command to be executed.')

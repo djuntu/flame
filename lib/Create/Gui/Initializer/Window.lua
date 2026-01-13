@@ -106,6 +106,7 @@ end
 ]]
 function Window:ClearWindowInput ()
 	local textBox = self.Writer.Object.TextBox
+	wait()
 	textBox.Text = ''
 end
 
@@ -142,14 +143,17 @@ function Window:FocusLost (enterPressed: boolean)
 
 	if enterPressed then
 		local commandEntry = textBox.Text
-		if self.CanProcess then
+		local willBeProcessed = self.CanProcess
+
+		self.Main.Dispatch(commandEntry)
+		if willBeProcessed then
 			self:ClearWindowInput()
 			self:GoToFocus()
 		end
-		self.Main.Dispatch(commandEntry)
+		self:Focus(willBeProcessed)
+	else
+		self:Focus(false)
 	end
-
-	self:Focus(enterPressed and self.CanProcess)
 end
 
 --[[

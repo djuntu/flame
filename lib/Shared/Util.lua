@@ -11,7 +11,6 @@ Util.TweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quint)
 
 local wrapChar = { `'`, `"` }
 local continueChar = { `,` }
-local specialChar = { `.`, `*`, `?`, `*.` }
 
 --[[
     Creates a key: boolean dictionary of the given elements.
@@ -201,6 +200,21 @@ function Util.getTextSize (text: string, textLabel: TextLabel): Vector2
 end
 
 --[[
+	Filters and then maps the changes to the given list.
+]]
+function Util.filterMap(list: FlameTypes.List<any> | FlameTypes.KeyList<any, any>, consumer: (any, any) -> any | nil, predicate: (any, any) -> boolean): FlameTypes.List<any>
+	local filtered = {}
+
+	for key, value in pairs(list) do
+		if predicate(key, value) then
+			table.insert(filtered, consumer(key, value))
+		end
+	end
+
+	return filtered
+end
+
+--[[
 	Replaces the comparative string at the index given, used for autofilling.
 ]]
 function Util.targettedSubstringReplace (str, index, comparator, desirable)
@@ -266,11 +280,6 @@ end
     Parses arguments based on given inputs.
 ]]
 function Util.parseArgs (str: string)
-	local stripped = str:gsub('%s+', '')
-	for _, special in specialChar do
-		if stripped == special then return { stripped } end
-	end
-
 	local characterSets = {}
 	local argumentRunBegin = 1
 	local export = {}

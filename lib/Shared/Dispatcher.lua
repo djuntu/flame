@@ -164,8 +164,6 @@ function Dispatcher.EvaluateAndRun (
 	local commandName: string, commandEntryPoint: string, rawArgs: string = Util.parseParams(rawText)
 	if not commandName then return string.format(INVALID_COMMAND_ARGUMENTS, rawText) end
 
-	print(commandName, commandEntryPoint, rawArgs)
-
 	local command: FlameTypes.Command = self.Flame.Registry:Get(commandName, 'Command')
 	if not command then return string.format(UNKNOWN_COMMAND, commandName) end
 	if not command:extract(commandEntryPoint) then return string.format(UNKNOWN_COMMAND_ENTRY, commandEntryPoint) end
