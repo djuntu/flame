@@ -118,14 +118,24 @@ function Arguments.Struct (givenArguments: FlameTypes.GivenArguments): FlameType
 		end
 
 		local isDataType = Arguments.typeOf(registeredType) == 'DataType'
-
+		local isListableType = Arguments.typeOf(registeredType) == 'ListableType'
 		table.insert(structTable, {
 			Name = argument.Name,
 			Type = argument.Type,
 			Description = argument.Description,
 			Optional = argument.Optional or false,
+			IsDataType = isDataType,
+			IsListableType = isListableType,
 			Evaluate = function (argumentInput: string, hintOnly: string?)
-				local Search = isDataType and registeredType.Search or Arguments.SearchLikeEnum(type)
+				local Search = isListableType and registeredType.Search
+				if isDataType then
+					Search = function ()
+						return {}
+					end
+				elseif not isListableType then
+					-- isEnumType
+					Search = Arguments.SearchLikeEnum(registeredType)
+				end
 				if argumentInput == nil or argumentInput == '' then
 					if not Search then return argument.Optional or false, {} end
 
@@ -133,14 +143,14 @@ function Arguments.Struct (givenArguments: FlameTypes.GivenArguments): FlameType
 				end
 				return Arguments.Evaluator(argument.Type, argumentInput, Search, hintOnly)
 			end,
-			Transform = isDataType and registeredType.Transform or function (value: string)
+			Transform = (isDataType or isListableType) and registeredType.Transform or function (value: string)
 				for target, _ in pairs(registeredType) do
 					if string.lower(target) == string.lower(value) then return target end
 				end
 
 				return value
 			end,
-			Parse = isDataType and registeredType.Parse or function (value)
+			Parse = (isDataType or isListableType) and registeredType.Parse or function (value)
 				return value
 			end,
 		})
@@ -166,9 +176,9 @@ end
 	::: @note :::
 
 	@param name: string
-	@returns FlameTypes.DataType | FlameTypes.EnumType
+	@returns FlameTypes.DataType | FlameTypes.EnumType | FlameTypes.ListableType
 ]]
-function Arguments.Inherit (name: string): FlameTypes.DataType | FlameTypes.EnumType
+function Arguments.Inherit (name: string): FlameTypes.DataType | FlameTypes.EnumType | FlameTypes.ListableType
 	local type = Arguments.Types[name]
 	assert(type, string.format('%s exists as no type.\n%s', name, debug.traceback()))
 	return type
@@ -221,8 +231,11 @@ function Arguments.Evaluator (
 	end
 
 	local isDataType = Arguments.typeOf(registeredType) == 'DataType'
-	local type = isDataType and registeredType :: FlameTypes.DataType or registeredType :: FlameTypes.EnumType
-	local validateFunction = isDataType and type.Validate
+	local isListableType = Arguments.typeOf(registeredType) == 'ListableType'
+	local type = isListableType and registeredType :: FlameTypes.ListableType
+		or isDataType and registeredType :: FlameTypes.DataType
+		or registeredType :: FlameTypes.EnumType
+	local validateFunction = (isDataType or isListableType) and type.Validate
 		or function (value: string)
 			local canIndex = typeof(value) == 'string'
 			if not canIndex then return false end
@@ -243,12 +256,12 @@ end
 	Creates a new Type.
 
 	@param argumentName: string
-	@param evaluator: FlameTypes.DataType | FlameTypes.EnumType
+	@param evaluator: FlameTypes.DataType | FlameTypes.EnumType | FlameTypes.ListableType
 	@returns ArgumentType
 ]]
 function Arguments.Make (
 	argumentName: string,
-	argumentEvaluator: FlameTypes.DataType | FlameTypes.EnumType
+	argumentEvaluator: FlameTypes.DataType | FlameTypes.EnumType | FlameTypes.ListableType
 ): FlameTypes.ArgumentType
 	return function ()
 		return argumentName, argumentEvaluator
@@ -257,7 +270,7 @@ end
 
 --[[
     @within Arguments
-    @function Make
+    @function MakeEnumType
 	Creates a new EnumType.
 
 	@param name: string
@@ -270,7 +283,7 @@ end
 
 --[[
     @within Arguments
-    @function Make
+    @function MakeDataType
 	Creates a new DataType.
 
 	@param holotype: DataType
@@ -279,6 +292,29 @@ end
 function Arguments.MakeDataType (holotype: FlameTypes.DataType): FlameTypes.DataType
 	-- Validate properties
 	assert(typeof(holotype) == 'table', 'Expected table for MakeDataType entry.')
+	assert(typeof(holotype.Parse) == 'function', 'Expected function for Parse got other.')
+	assert(typeof(holotype.Validate) == 'function', 'Expected function for Validate got other.')
+	assert(typeof(holotype.Transform) == 'function', 'Expected function for Transform got other.')
+
+	-- Remove sparse entries
+	return {
+		Parse = holotype.Parse,
+		Validate = holotype.Validate,
+		Transform = holotype.Transform,
+	}
+end
+
+--[[
+    @within Arguments
+    @function MakeListableType
+	Creates a new ListableType.
+
+	@param holotype: ListableType
+	@returns ListableType
+]]
+function Arguments.MakeListableType (holotype: FlameTypes.ListableType): FlameTypes.ListableType
+	-- Validate properties
+	assert(typeof(holotype) == 'table', 'Expected table for MakeListableType entry.')
 	assert(typeof(holotype.Parse) == 'function', 'Expected function for Parse got other.')
 	assert(typeof(holotype.Validate) == 'function', 'Expected function for Validate got other.')
 	assert(typeof(holotype.Transform) == 'function', 'Expected function for Transform got other.')
@@ -388,7 +424,7 @@ end
 --[[
     @within Arguments
     @function typeOf
-	Evaluates the type of the given input (DataType or EnumType). Used
+	Evaluates the type of the given input (DataType, ListableType, or EnumType). Used
 	for making decisions when parsing.
 
 	::: @notfriendly :::
@@ -397,10 +433,11 @@ end
 	::: @note :::
 
 	@protected
-	@param type: DataType | EnumType
+	@param type: DataType | EnumType | ListableType
 	@returns string
 ]]
-function Arguments.typeOf (t: FlameTypes.DataType | FlameTypes.EnumType)
+function Arguments.typeOf (t: FlameTypes.DataType | FlameTypes.EnumType | FlameTypes.ListableType): string
+	if t['Search'] then return 'ListableType' end
 	if t['Parse'] then return 'DataType' end
 
 	return 'EnumType'

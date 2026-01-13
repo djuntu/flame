@@ -193,13 +193,19 @@ export type Arguments = {
 	Context: (name: string, userInput: string?) -> ArgumentContext,
 	Register: () -> (),
 	Inherit: (name: string) -> ArgumentType,
-	Make: (argumentName: string, argumentEvaluator: DataType | EnumType) -> () -> (string, DataType | EnumType),
+	Make: (argumentName: string, argumentEvaluator: DataType | EnumType | ListableType) -> () -> (string, DataType | EnumType | ListableType),
 	MakeEnumType: (name: string, list: List<string>) -> EnumType,
 	MakeDataType: (entry: DataType?) -> DataType,
+    MakeListableType: (entry: ListableType?) -> ListableType,
 	SearchLikeEnum: (options: List<string>) -> EnumSearch,
 	typeOf: (t: DataType | EnumType) -> string,
 }
 export type DataType = {
+	Transform: (value: any?) -> any?,
+	Validate: (value: string) -> boolean | string,
+	Parse: (value: string) -> any?,
+}
+export type ListableType = {
 	Transform: (value: any?) -> any?,
 	Validate: (value: string) -> boolean | string,
 	Parse: (value: string) -> any?,
@@ -211,6 +217,8 @@ export type ArgumentStruct = {
 		Type: string,
 		Description: string?,
 		Optional: boolean,
+        IsListableType: boolean?,
+        IsDataType: boolean?,
 		Evaluate: (input: string, hintOnly: string?) -> (boolean, List<string>),
 		Transform: (value: any?) -> any?,
 		Parse: (value: string) -> any?,
@@ -229,7 +237,7 @@ export type CommandArgument = {
 	Optional: boolean?,
 }
 export type EnumType = KeyList<string, boolean>
-export type ArgumentType = () -> (string, DataType | ArgumentType)
+export type ArgumentType = () -> (string, ListableType | DataType | ArgumentType)
 export type TypeRegistry = { [string]: ArgumentType }
 
 export type _View = {
