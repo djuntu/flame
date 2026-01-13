@@ -80,4 +80,82 @@ return function <Context>(Flame: FlameTypes.FlameMain<Context>)
 	Flame.addType = function (...): M
 		return addType(...)
 	end
+
+	Flame.addCommands = function (self: FlameTypes._Flame, folder: Folder | { ModuleScript }): M
+		if typeof(folder) ~= 'Instance' and typeof(folder) ~= 'table' then
+			error(
+				('Expected folder or list of ModuleScripts for addCommands, got %s.'):format(typeof(folder) or 'Null')
+			)
+		end
+
+		if typeof(folder) == 'Instance' and not folder:IsA('Folder') then
+			error(('Expected folder or list of ModuleScripts for addCommands, got %s.'):format(folder.ClassName))
+		end
+
+		if typeof(folder) == 'Instance' then
+			for _, moduleScript in pairs(folder:GetChildren()) do
+				if moduleScript:IsA('ModuleScript') then addCommand(Flame, moduleScript) end
+			end
+		else
+			for _, moduleScript in pairs(folder) do
+				if typeof(moduleScript) == 'Instance' and moduleScript:IsA('ModuleScript') then
+					addCommand(Flame, moduleScript)
+				end
+			end
+		end
+
+		return self
+	end
+
+	Flame.addTypes = function (self: FlameTypes._Flame, folder: Folder | { ModuleScript }): M
+		if typeof(folder) ~= 'Instance' and typeof(folder) ~= 'table' then
+			error(('Expected folder or list of ModuleScripts for addTypes, got %s.'):format(typeof(folder) or 'Null'))
+		end
+
+		if typeof(folder) == 'Instance' and not folder:IsA('Folder') then
+			error(('Expected folder or list of ModuleScripts for addTypes, got %s.'):format(folder.ClassName))
+		end
+
+		if typeof(folder) == 'Instance' then
+			for _, moduleScript in pairs(folder:GetChildren()) do
+				if moduleScript:IsA('ModuleScript') then addType(Flame, moduleScript) end
+			end
+		else
+			for _, moduleScript in pairs(folder) do
+				if typeof(moduleScript) == 'Instance' and moduleScript:IsA('ModuleScript') then
+					addType(Flame, moduleScript)
+				end
+			end
+		end
+
+		return self
+	end
+
+	Flame.hookMiddleware = function (self: FlameTypes._Flame, folder: Folder | { ModuleScript }): M
+		if typeof(folder) ~= 'Instance' and typeof(folder) ~= 'table' then
+			error(
+				('Expected folder or list of ModuleScripts for hookMiddleware, got %s.'):format(
+					typeof(folder) or 'Null'
+				)
+			)
+		end
+
+		if typeof(folder) == 'Instance' and not folder:IsA('Folder') then
+			error(('Expected folder or list of ModuleScripts for hookMiddleware, got %s.'):format(folder.ClassName))
+		end
+
+		if typeof(folder) == 'Instance' then
+			for _, moduleScript in pairs(folder:GetChildren()) do
+				if moduleScript:IsA('ModuleScript') then addMiddleware(Flame, moduleScript) end
+			end
+		else
+			for _, moduleScript in pairs(folder) do
+				if typeof(moduleScript) == 'Instance' and moduleScript:IsA('ModuleScript') then
+					addMiddleware(Flame, moduleScript)
+				end
+			end
+		end
+
+		return self
+	end
 end
