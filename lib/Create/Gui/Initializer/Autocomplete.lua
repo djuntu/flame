@@ -20,6 +20,7 @@ function Autocomplete.new (Main)
 	local self = setmetatable({}, Autocomplete)
 	self.Main = Main
 	self.Object = self:Create(Main.Gui)
+	self:Visible(false, true)
 	self.RawOptions = {}
 	self.CurrentSelectionMount = 1
 
@@ -77,9 +78,20 @@ end
     @param bool: boolean
     @returns void
 ]]
-function Autocomplete:Visible (bool: boolean)
-	self:SetSelectedInput('')
-	self.Object.Visible = bool
+function Autocomplete:Visible (bool: boolean, isInitialization: boolean?)
+	if not isInitialization then
+		self:SetSelectedInput('')
+	end
+
+	for _, child in pairs(self.Object:GetChildren()) do
+		if child:IsA('GuiObject') then
+			child.Visible = bool
+		end
+	end
+
+	TweenService:Create(self.Object, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {
+		BackgroundTransparency = bool and 0.3 or 1
+	}):Play()
 end
 
 --[[
@@ -279,7 +291,7 @@ function Autocomplete:CreateOption (text: string): TextButton
 	local Option = Instance.new('TextButton')
 	Option.BackgroundColor3 = Color3.fromRGB(3, 3, 9)
 	Option.BackgroundTransparency = 0.7
-	Option.Size = UDim2.new(UDim.new(1, 0), UDim.new(0, 25))
+	Option.Size = UDim2.new(UDim.new(0, 220), UDim.new(0, 25))
 	Option.Text = ''
 	Option.Name = text
 
@@ -341,15 +353,17 @@ function Autocomplete:Create (parent: ScreenGui)
 	Suggestion.ScrollingDirection = Enum.ScrollingDirection.Y
 	Suggestion.Position = UDim2.fromScale(0.5, 0.5)
 	Suggestion.Name = 'Autocomplete'
+	Suggestion.AutomaticSize = Enum.AutomaticSize.X
 	Suggestion.ZIndex = 2
 
 	local Title = Instance.new('TextLabel')
 	Title.BackgroundTransparency = 1
-	Title.Size = UDim2.new(UDim.new(0.8, 0), UDim.new(0, 30))
+	Title.Size = UDim2.new(UDim.new(0, 180), UDim.new(0, 30))
 	Title.Name = 'Title'
 	Title.AnchorPoint = Vector2.new(0.5, 0)
 	Title.LayoutOrder = 0
 	Title.TextXAlignment = Enum.TextXAlignment.Left
+	Title.AutomaticSize = Enum.AutomaticSize.X
 	Title.TextSize = 25
 	Title.TextColor3 = Color3.new(1, 1, 1)
 	local font = Font.fromEnum(Enum.Font.RobotoMono)
@@ -360,7 +374,7 @@ function Autocomplete:Create (parent: ScreenGui)
 
 	local Description = Instance.new('TextLabel')
 	Description.BackgroundTransparency = 1
-	Description.Size = UDim2.new(UDim.new(0.8, 0), UDim.new(0, 35))
+	Description.Size = UDim2.new(UDim.new(0, 180), UDim.new(0, 35))
 	Description.Name = 'Description'
 	Description.AnchorPoint = Vector2.new(0.5, 0)
 	Description.LayoutOrder = 1
@@ -388,7 +402,6 @@ function Autocomplete:Create (parent: ScreenGui)
 	Corner.CornerRadius = UDim.new(0, 8)
 	Corner.Parent = Suggestion
 
-	Suggestion.Visible = false
 	Suggestion.Parent = parent
 
 	return Suggestion

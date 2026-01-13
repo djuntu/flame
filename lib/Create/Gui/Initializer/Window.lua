@@ -60,7 +60,12 @@ function Window:WriteLine (
 	if header then writtenLine:SetHeader(header) end
 	if expression then writtenLine:SetExpression(expression) end
 
-	Util.adjustConsoleSize(window, 30, 300)
+	if self:IsToggled() then
+		Util.adjustConsoleSize(window, 30, 300)
+	end
+
+	self:GoToFocus()
+	self.Main.Autocomplete:SetPosition(self.Main.GetEntryPosition())
 end
 
 --[[
@@ -87,6 +92,9 @@ end
 	@returns void
 ]]
 function Window:CaptureFocus ()
+	if not self:IsToggled() then
+		return
+	end
 	local writer = self.Writer
 	local textBox = writer.Object.TextBox
 	textBox:CaptureFocus()
@@ -232,12 +240,14 @@ function Window:Toggle (toggle: boolean)
 		self:GoToFocus()
 		self:CaptureFocus()
 		self.Main.Gui.Enabled = true
+		self.Main.Autocomplete:Visible(true)
+		self.Main.Autocomplete:SetPosition(self.Main.GetEntryPosition())
 	else
 		Util.fadeOutConsole(scrollingFrame)
 
 		self:Unfocus()
+		self.Main.Autocomplete:Visible(false, true)
 
-		-- This is terrible logic and needs to be changed in second release.
 		task.delay(0.25, function()
 			if self:IsToggled() then
 				return
