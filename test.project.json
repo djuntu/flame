@@ -8,20 +8,6 @@
 				"$path": "lib"
 			}
 		},
-		"ServerScriptService": {
-			"$className": "ServerScriptService",
-			"Tests": {
-				"$path": "bin/testServer"
-			}
-		},
-		"StarterPlayer": {
-			"$className": "StarterPlayer",
-			"StarterPlayerScripts": {
-				"Tests": {
-					"$path": "bin/testClient"
-				}
-			}
-		},
 		"TestService": {
 			"$className": "TestService",
 			"$properties": {
