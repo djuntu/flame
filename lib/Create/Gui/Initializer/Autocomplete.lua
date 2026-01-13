@@ -79,18 +79,14 @@ end
     @returns void
 ]]
 function Autocomplete:Visible (bool: boolean, isInitialization: boolean?)
-	if not isInitialization then
-		self:SetSelectedInput('')
-	end
+	if not isInitialization then self:SetSelectedInput('') end
 
 	for _, child in pairs(self.Object:GetChildren()) do
-		if child:IsA('GuiObject') then
-			child.Visible = bool
-		end
+		if child:IsA('GuiObject') then child.Visible = bool end
 	end
 
 	TweenService:Create(self.Object, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {
-		BackgroundTransparency = bool and 0.3 or 1
+		BackgroundTransparency = bool and 0.3 or 1,
 	}):Play()
 end
 

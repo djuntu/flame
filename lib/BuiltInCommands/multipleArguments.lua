@@ -17,29 +17,29 @@ local MultipleArguments: Types.CommandProps = {
 Command.Primary {
 	Hoist = MultipleArguments,
 	Realm = 'Shared',
-    Arguments = {
-        {
-            Type = 'strings',
-            Name = 'Friends',
-            Description = 'Who are your friends?',
-            Optional = false,
-        },
-        {
-            Type = 'numbers',
-            Name = 'Ages',
-            Description = 'What are their ages?',
-            Optional = false,
-        },
-        {
-            Type = 'strings',
-            Name = 'Best Friends',
-            Description = 'Who are your best friends?',
-            Optional = true,
-        },
-    }
+	Arguments = {
+		{
+			Type = 'strings',
+			Name = 'Friends',
+			Description = 'Who are your friends?',
+			Optional = false,
+		},
+		{
+			Type = 'numbers',
+			Name = 'Ages',
+			Description = 'What are their ages?',
+			Optional = false,
+		},
+		{
+			Type = 'strings',
+			Name = 'Best Friends',
+			Description = 'Who are your best friends?',
+			Optional = true,
+		},
+	},
 }(function (context: Types.CommandContext)
-    print(context.Arguments)
-    return 'Done!'
+	print(context.Arguments)
+	return 'Done!'
 end)
 
 return MultipleArguments

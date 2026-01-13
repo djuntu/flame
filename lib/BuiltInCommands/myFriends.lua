@@ -26,21 +26,21 @@ Command.Primary {
 	},
 }(function (context: Types.CommandContext)
 	local myFriends = context:GetArgument('Friends')
-    if #myFriends == 0 then
-        context:Reply {
-            Message = 'You have no friends! :(',
-            LineStyle = 'Expressive',
-            Expression = context:GetIcon('Failure'),
-        }
-    else
-        context:Reply {
-            Message = 'Your friends are ' .. table.concat(myFriends, ', '),
-            LineStyle = 'Expressive',
-            Expression = context:GetIcon('Success'),
-        }
-    end
+	if #myFriends == 0 then
+		context:Reply {
+			Message = 'You have no friends! :(',
+			LineStyle = 'Expressive',
+			Expression = context:GetIcon('Failure'),
+		}
+	else
+		context:Reply {
+			Message = 'Your friends are ' .. table.concat(myFriends, ', '),
+			LineStyle = 'Expressive',
+			Expression = context:GetIcon('Success'),
+		}
+	end
 
-    return 'Here are you friends!'
+	return 'Here are you friends!'
 end)
 
 return MyFriends

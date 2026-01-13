@@ -111,9 +111,7 @@ return function (Main)
 		local textBox: TextBox = Initializer.Window.Writer.Object.TextBox
 		local cursorPosition = textBox.CursorPosition
 
-		if string.find(targetInput, ' ') then
-			targetInput = `'{targetInput}'`
-		end
+		if string.find(targetInput, ' ') then targetInput = `'{targetInput}'` end
 		textBox.Text = Util.targettedSubstringReplace(textBox.Text, cursorPosition, Initializer.UserInput, targetInput)
 			.. ' '
 		Initializer.OnTextChanged(textBox.Text)
@@ -178,7 +176,7 @@ return function (Main)
 				if commandEntryPoint ~= 'Primary' then
 					autoCompleteOptions = Util.filterMap(commandObject.Store, function (key, value)
 						return commandName .. '/' .. key
-					end, function(key, value)
+					end, function (key, value)
 						return Util.startsWith(key, string.lower(commandEntryPoint)) and key ~= 'Primary'
 					end)
 				end
@@ -311,9 +309,7 @@ return function (Main)
 				-- Therefore we set the first option to be a blank table (skippable entry)
 				-- so the autocomplete still shows but with no options.
 				local isDataType = structItem.IsDataType
-				if isDataType then
-					hintList = {{}}
-				end
+				if isDataType then hintList = { {} } end
 				autoCompleteOptions = hintList
 				if not isOK then
 					Window:SetProcessableEntry(

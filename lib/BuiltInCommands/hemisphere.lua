@@ -16,26 +16,26 @@ local Hemisphere: Types.CommandProps = {
 Command.Primary {
 	Hoist = Hemisphere,
 	Realm = 'Client',
-    Arguments = {
-        {
-            Type = 'Continent',
-            Name = 'Continent',
-            Description = 'What continent do you live in?',
-        }
-    }
+	Arguments = {
+		{
+			Type = 'Continent',
+			Name = 'Continent',
+			Description = 'What continent do you live in?',
+		},
+	},
 }(function (context: Types.CommandContext)
-    local hemispheres = {
-        ['North America'] = 'Northern',
-        ['South America'] = 'Northern/Southern',
-        ['Europe'] = 'Northern',
-        ['Africa'] = 'Northern/Southern',
-        ['Oceania'] = 'Southern',
-        ['Asia'] = 'Northern',
-        ['Antarctica'] = 'Southern'
-    }
+	local hemispheres = {
+		['North America'] = 'Northern',
+		['South America'] = 'Northern/Southern',
+		['Europe'] = 'Northern',
+		['Africa'] = 'Northern/Southern',
+		['Oceania'] = 'Southern',
+		['Asia'] = 'Northern',
+		['Antarctica'] = 'Southern',
+	}
 
-    local userHemisphere = hemispheres[context:GetArgument('Continent')]
-    return `You live in the {userHemisphere} hemisphere!`
+	local userHemisphere = hemispheres[context:GetArgument('Continent')]
+	return `You live in the {userHemisphere} hemisphere!`
 end)
 
 return Hemisphere

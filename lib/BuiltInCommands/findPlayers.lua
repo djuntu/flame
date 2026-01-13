@@ -16,17 +16,17 @@ local FindPlayers: Types.CommandProps = {
 Command.Primary {
 	Hoist = FindPlayers,
 	Realm = 'Shared',
-    Arguments = {
-        {
-            Type = 'players',
-            Name = 'Players',
-            Description = 'The players you want to find!',
-        }
-    }
+	Arguments = {
+		{
+			Type = 'players',
+			Name = 'Players',
+			Description = 'The players you want to find!',
+		},
+	},
 }(function (context: Types.CommandContext)
-    for _, player: Player in context:GetArgument('Players') do
-        context:Reply(`{player.Name}'s position is {player.Character.HumanoidRootPart.Position}!`)
-    end
+	for _, player: Player in context:GetArgument('Players') do
+		context:Reply(`{player.Name}'s position is {player.Character.HumanoidRootPart.Position}!`)
+	end
 end)
 
 return FindPlayers

@@ -382,8 +382,8 @@ function Registry.GetMdwr (
 	middleware: FlameTypes.MdwrType
 ): FlameTypes.Middleware?
 	if command.Middleware and typeof(command.Middleware) == 'table' then
-        return command.Middleware[middleware] and command.Middleware[middleware][middleware]
-    end
+		return command.Middleware[middleware] and command.Middleware[middleware][middleware]
+	end
 end
 
 --[[

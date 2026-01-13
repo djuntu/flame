@@ -202,13 +202,15 @@ end
 --[[
 	Filters and then maps the changes to the given list.
 ]]
-function Util.filterMap(list: FlameTypes.List<any> | FlameTypes.KeyList<any, any>, consumer: (any, any) -> any | nil, predicate: (any, any) -> boolean): FlameTypes.List<any>
+function Util.filterMap (
+	list: FlameTypes.List<any> | FlameTypes.KeyList<any, any>,
+	consumer: (any, any) -> any | nil,
+	predicate: (any, any) -> boolean
+): FlameTypes.List<any>
 	local filtered = {}
 
 	for key, value in pairs(list) do
-		if predicate(key, value) then
-			table.insert(filtered, consumer(key, value))
-		end
+		if predicate(key, value) then table.insert(filtered, consumer(key, value)) end
 	end
 
 	return filtered
@@ -338,11 +340,9 @@ end
 --[[
 	Returns whether each value of a list satisfies the predicate function.
 ]]
-function Util.every(list: FlameTypes.List<any>, predicate: (any) -> boolean)
+function Util.every (list: FlameTypes.List<any>, predicate: (any) -> boolean)
 	for _, item in pairs(list) do
-		if not predicate(item) then
-			return false
-		end
+		if not predicate(item) then return false end
 	end
 
 	return true

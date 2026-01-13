@@ -131,14 +131,10 @@ function Gui.create ()
 			self.Toggled = not self.Toggled
 			self.Handler.Window:Toggle(self.Toggled)
 		elseif self.Navigation[input.KeyCode] then
-			if not self.Toggled then
-				return
-			end
+			if not self.Toggled then return end
 			self.Handler.Autocomplete:CycleInput(self.Navigation[input.KeyCode], self.Handler.UserInput)
 		elseif input.KeyCode == Enum.KeyCode.Tab then
-			if not self.Toggled then
-				return
-			end
+			if not self.Toggled then return end
 			self.Handler.Autocomplete:Autocomplete()
 		end
 	end)

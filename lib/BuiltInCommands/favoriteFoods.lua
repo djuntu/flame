@@ -16,30 +16,30 @@ local FavoriteFoods: Types.CommandProps = {
 Command.Primary {
 	Hoist = FavoriteFoods,
 	Realm = 'Client',
-    Arguments = {
-        {
-            Type = 'FavoriteFoods',
-            Name = 'Foods',
-            Description = 'What foods do you like?',
-        }
-    }
+	Arguments = {
+		{
+			Type = 'FavoriteFoods',
+			Name = 'Foods',
+			Description = 'What foods do you like?',
+		},
+	},
 }(function (context: Types.CommandContext)
-    local descriptions = {
-        ['Pizza'] = 'Pizza is a versatile Italian dish featuring a baked dough base, tangy tomato sauce, melted cheese, and various toppings.',
-        ['Salad'] = 'A salad is a versatile dish, typically cold, featuring a mix of fresh or cooked ingredients.',
-        ['Stew'] = 'A stew is a hearty, one-pot meal of chunky ingredients like meat and vegetables slow-simmered in liquid until tender, creating a rich, flavorful gravy, perfect for cold weather.',
-        ['Hamburger'] = 'A hamburger is a sandwich with a cooked ground meat patty (usually beef) served in a sliced bun.',
-        ['Kebab'] = 'Kebab is a versatile dish of meat (lamb, beef, chicken) or vegetables, typically grilled on a skewer or spit.',
-        ['Paella'] = 'Paella is a traditional Spanish saffron-flavored rice dish from Valencia, cooked in a wide, shallow pan with meat, seafood, and vegetables.',
-        ['Hotdog'] = 'A hot dog is a cooked sausage, often beef or pork, typically served in a split bun with various condiments.',
-    }
+	local descriptions = {
+		['Pizza'] = 'Pizza is a versatile Italian dish featuring a baked dough base, tangy tomato sauce, melted cheese, and various toppings.',
+		['Salad'] = 'A salad is a versatile dish, typically cold, featuring a mix of fresh or cooked ingredients.',
+		['Stew'] = 'A stew is a hearty, one-pot meal of chunky ingredients like meat and vegetables slow-simmered in liquid until tender, creating a rich, flavorful gravy, perfect for cold weather.',
+		['Hamburger'] = 'A hamburger is a sandwich with a cooked ground meat patty (usually beef) served in a sliced bun.',
+		['Kebab'] = 'Kebab is a versatile dish of meat (lamb, beef, chicken) or vegetables, typically grilled on a skewer or spit.',
+		['Paella'] = 'Paella is a traditional Spanish saffron-flavored rice dish from Valencia, cooked in a wide, shallow pan with meat, seafood, and vegetables.',
+		['Hotdog'] = 'A hot dog is a cooked sausage, often beef or pork, typically served in a split bun with various condiments.',
+	}
 
-    local favoriteFoods = context:GetArgument('Foods')
-    for _, food in favoriteFoods do
-        context:Reply(descriptions[food])
-    end
+	local favoriteFoods = context:GetArgument('Foods')
+	for _, food in favoriteFoods do
+		context:Reply(descriptions[food])
+	end
 
-    return 'Here are your favorite foods!'
+	return 'Here are your favorite foods!'
 end)
 
 return FavoriteFoods

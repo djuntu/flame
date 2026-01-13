@@ -15,35 +15,33 @@ local RememberMe: Types.CommandProps = {
 }
 
 -- Create the Command's state
-function RememberMe.New()
-    local State = {
-        whatShouldIRemember = 'nothing'
-    }
+function RememberMe.New ()
+	local State = {
+		whatShouldIRemember = 'nothing',
+	}
 
-    return State
+	return State
 end
 
 Command.Primary {
 	Hoist = RememberMe,
 	Realm = 'Shared',
-    Arguments = {
-        {
-            Type = 'string',
-            Name = 'Remember',
-            Description = 'What should the command remember?',
-            Optional = true
-        }
-    }
+	Arguments = {
+		{
+			Type = 'string',
+			Name = 'Remember',
+			Description = 'What should the command remember?',
+			Optional = true,
+		},
+	},
 }(function (context: Types.CommandContext)
 	local remember = context:GetArgument('Remember')
-    local state = context:GetState()
+	local state = context:GetState()
 
-    if remember == nil then
-        return `I remembered: {state.whatShouldIRemember}`
-    end
+	if remember == nil then return `I remembered: {state.whatShouldIRemember}` end
 
-    state.whatShouldIRemember = remember
-    return 'I\'ll keep that in mind!'
+	state.whatShouldIRemember = remember
+	return 'I\'ll keep that in mind!'
 end)
 
 return RememberMe

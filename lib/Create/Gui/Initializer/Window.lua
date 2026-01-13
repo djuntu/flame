@@ -60,9 +60,7 @@ function Window:WriteLine (
 	if header then writtenLine:SetHeader(header) end
 	if expression then writtenLine:SetExpression(expression) end
 
-	if self:IsToggled() then
-		Util.adjustConsoleSize(window, 30, 300)
-	end
+	if self:IsToggled() then Util.adjustConsoleSize(window, 30, 300) end
 
 	self:GoToFocus()
 	self.Main.Autocomplete:SetPosition(self.Main.GetEntryPosition())
@@ -92,9 +90,7 @@ end
 	@returns void
 ]]
 function Window:CaptureFocus ()
-	if not self:IsToggled() then
-		return
-	end
+	if not self:IsToggled() then return end
 	local writer = self.Writer
 	local textBox = writer.Object.TextBox
 	textBox:CaptureFocus()
@@ -182,7 +178,7 @@ end
 	@public
 	@returns boolean
 ]]
-function Window:IsToggled()
+function Window:IsToggled ()
 	return self.Main.Main.Toggled
 end
 
@@ -214,9 +210,7 @@ function Window:FocusLost (enterPressed: boolean)
 		self:CaptureFocus()
 	else
 		-- Prevents infinite editing loop (we're not editing if the CLI is closed.)
-		if not self:IsToggled() then
-			return
-		end
+		if not self:IsToggled() then return end
 		self:Focus(false)
 	end
 end
@@ -248,10 +242,8 @@ function Window:Toggle (toggle: boolean)
 		self:Unfocus()
 		self.Main.Autocomplete:Visible(false, true)
 
-		task.delay(0.25, function()
-			if self:IsToggled() then
-				return
-			end
+		task.delay(0.25, function ()
+			if self:IsToggled() then return end
 			self.Main.Gui.Enabled = false
 		end)
 	end

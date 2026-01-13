@@ -196,10 +196,13 @@ export type Arguments = {
 	Context: (name: string, userInput: string?) -> ArgumentContext,
 	Register: () -> (),
 	Inherit: (name: string) -> ArgumentType,
-	Make: (argumentName: string, argumentEvaluator: DataType | EnumType | ListableType) -> () -> (string, DataType | EnumType | ListableType),
+	Make: (
+		argumentName: string,
+		argumentEvaluator: DataType | EnumType | ListableType
+	) -> () -> (string, DataType | EnumType | ListableType),
 	MakeEnumType: (name: string, list: List<string>) -> EnumType,
 	MakeDataType: (entry: DataType?) -> DataType,
-    MakeListableType: (entry: ListableType?) -> ListableType,
+	MakeListableType: (entry: ListableType?) -> ListableType,
 	SearchLikeEnum: (options: List<string>) -> EnumSearch,
 	typeOf: (t: DataType | EnumType) -> string,
 }
@@ -220,8 +223,8 @@ export type ArgumentStruct = {
 		Type: string,
 		Description: string?,
 		Optional: boolean,
-        IsListableType: boolean?,
-        IsDataType: boolean?,
+		IsListableType: boolean?,
+		IsDataType: boolean?,
 		Evaluate: (input: string, hintOnly: string?) -> (boolean, List<string>),
 		Transform: (value: any?) -> any?,
 		Parse: (value: string) -> any?,
@@ -247,9 +250,9 @@ export type _View = {
 	addCommand: (self: _Flame, module: ModuleScript) -> _Flame,
 	addMiddleware: (self: _Flame, module: ModuleScript) -> _Flame,
 	addType: (self: _Flame, module: ModuleScript) -> _Flame,
-	addCommands: (self: _Flame, Folder | {ModuleScript}) -> _Flame,
-	addTypes: (self: _Flame, Folder | {ModuleScript}) -> _Flame,
-	hookMiddleware: (self: _Flame, Folder | {ModuleScript}) -> _Flame,
+	addCommands: (self: _Flame, Folder | { ModuleScript }) -> _Flame,
+	addTypes: (self: _Flame, Folder | { ModuleScript }) -> _Flame,
+	hookMiddleware: (self: _Flame, Folder | { ModuleScript }) -> _Flame,
 }
 
 export type FlameMain<Context> = BuildTypes.Builder<Context> & _Flame & _View

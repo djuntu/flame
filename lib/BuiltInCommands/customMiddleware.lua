@@ -15,7 +15,7 @@ local CustomMiddleware: Types.CommandProps = {
 	Middleware = {
 		BeforeExecution = Middleware.new('BeforeExecution', function (context)
 			context:Reply('This has been called in BeforeExecution.')
-            return true
+			return true
 		end),
 		AfterExecution = Middleware.new('AfterExecution', function (context, success)
 			context:Reply(
@@ -30,17 +30,17 @@ Command.Primary {
 	Realm = 'Shared',
 }(function (context: Types.CommandContext)
 	context:Reply('Waiting 3 seconds...')
-    for i = 1, 3 do
-        context:Reply(`{i} {i > 1 and 'seconds' or 'second'} elapsed...`)
-        task.wait(1)
-    end
+	for i = 1, 3 do
+		context:Reply(`{i} {i > 1 and 'seconds' or 'second'} elapsed...`)
+		task.wait(1)
+	end
 
-    return 'Done!'
+	return 'Done!'
 end)
 
 Command.Secondary {
 	Hoist = CustomMiddleware,
-    Name = 'somethingwentwrong',
+	Name = 'somethingwentwrong',
 	Realm = 'Shared',
 }(function (context: Types.CommandContext)
 	error('Something went wrong!')
