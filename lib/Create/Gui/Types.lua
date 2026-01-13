@@ -60,7 +60,7 @@ export type Autocomplete = {
 
 	CycleInput: (self: Autocomplete, up: string, userInput: string) -> nil,
 	SelectFromTextButon: (self: Autocomplete, textButton: TextButton, userInput: string) -> nil,
-	Visible: (self: Autocomplete, bool: boolean) -> nil,
+	Visible: (self: Autocomplete, bool: boolean, isInitialization: boolean?) -> nil,
 	GetSelected: (self: Autocomplete) -> TextButton?,
 	Select: (self: Autocomplete, n: number, userInput: string) -> nil,
 	SetSelectedInput: (self: Autocomplete, userInput: string) -> nil,

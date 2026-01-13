@@ -1,11 +1,11 @@
 local Types = require(script.Parent.Parent.Types.FlameTypes)
 return function (argument: Types.Arguments)
-    return argument.Make('People', argument.MakeListableType {
+    return argument.Make('FavoriteFoods', argument.MakeListableType {
         Parse = function(value: string)
             return string.split(value, ',')
         end,
         Validate = function(people: {string})
-            local names = argument.Inherit('Names')
+            local names = argument.Inherit('Foods')
             for _, person in people do
                 if not names[person] then
                     return false
@@ -18,7 +18,7 @@ return function (argument: Types.Arguments)
             return value
         end,
         Search = function(value: string)
-            local names = argument.Inherit('Names')
+            local names = argument.Inherit('Foods')
             return argument.SearchLikeEnum(names)(value)
         end
     })

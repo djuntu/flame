@@ -7,15 +7,15 @@ local Types = require(Flame.Types.FlameTypes)
 local Command: Types.UserCommandBuilder = require(Flame.Objects.Command)
 
 -- Create the 'showSomeColor' command
-local ServerDoesThis: Types.CommandProps = {
-	Name = 'serverDoesThis',
+local ClientDoesThis: Types.CommandProps = {
+	Name = 'clientDoesThis',
 	Aliases = {},
 	Group = 'Utilities',
 }
 
 Command.Primary {
-	Hoist = ServerDoesThis,
-	Realm = 'Shared',
+	Hoist = ClientDoesThis,
+	Realm = 'Client',
     Arguments = {
         {
             Type = 'number',
@@ -40,4 +40,4 @@ Command.Primary {
     return 'Spawned all parts!'
 end)
 
-return ServerDoesThis
+return ClientDoesThis

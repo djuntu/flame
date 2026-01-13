@@ -5,7 +5,7 @@ return function (argument: Types.Arguments)
     return argument.Make('numbers', argument.MakeListableType {
         Parse = function(value: string)
             local numbers = string.split(value, ',')
-            Util.mapInPlace(numbers, function(numStr: string)
+            Util.map(numbers, function(numStr: string)
                 return tonumber(numStr)
             end)
 
