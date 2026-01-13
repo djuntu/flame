@@ -40,7 +40,7 @@ export type Registry = {
 	isKind: (object: Command | any) -> boolean,
 	extract: (key: string) -> (Command, List<Subcommand>),
 }
-export type Middleware = (CommandContext) -> boolean?
+export type Middleware = (CommandContext, boolean?) -> boolean?
 export type MiddlewareAbsorber = {
 	new: (self: MiddlewareAbsorber, mdwrType: MdwrType, callback: Middleware) -> MiddlewareReference,
 }
@@ -247,6 +247,9 @@ export type _View = {
 	addCommand: (self: _Flame, module: ModuleScript) -> _Flame,
 	addMiddleware: (self: _Flame, module: ModuleScript) -> _Flame,
 	addType: (self: _Flame, module: ModuleScript) -> _Flame,
+	addCommands: (self: _Flame, Folder | {ModuleScript}) -> _Flame,
+	addTypes: (self: _Flame, Folder | {ModuleScript}) -> _Flame,
+	hookMiddleware: (self: _Flame, Folder | {ModuleScript}) -> _Flame,
 }
 
 export type FlameMain<Context> = BuildTypes.Builder<Context> & _Flame & _View
